@@ -28,6 +28,9 @@ public function crear(){
     require_once __DIR__."/../views/usuario/crear.php";
 }
 
+public function editar(){
+    
+}
 }
 
 

@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="index.php?action=crear">crear usuari</a>
+    <a href="principal.php?action=crear">crear usuari</a>
     <table>
         <thead>
             <th>nombre_negocio</th>
