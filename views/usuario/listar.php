@@ -25,6 +25,7 @@
                 <td><?= $dato['apellido_usuario']; ?></td>
                 <td><?= $dato['telefono']; ?></td>
                 <td><?= $dato['correo']; ?></td>
+                <td><a href="principal.php?action=editar&id=<?= $dato['id_usuario']?>">editar</a></td>
             </tr>
             <?php endforeach ?>
         </tbody>

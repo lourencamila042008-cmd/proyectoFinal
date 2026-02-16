@@ -29,7 +29,21 @@ public function crear(){
 }
 
 public function editar(){
-    
+       $usuario = new Usuario();
+      if($_POST){
+        $u=$usuario->update(
+            $_POST['id_usuario'],
+            $_POST['nombre_negocio'],
+            $_POST['nombre_usuario'],
+            $_POST['apellido_usuario'],
+            $_POST['telefono'],
+            $_POST['correo'],
+            $_POST['id_rol']
+        );
+        header("Location: principal.php");
+    }
+    $datos = $usuario->GetById($_GET['id']);
+    require_once __DIR__."/../views/usuario/editar.php";
 }
 }
 
