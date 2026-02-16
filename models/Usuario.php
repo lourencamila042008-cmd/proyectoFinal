@@ -21,7 +21,7 @@ class Usuario {
 }
     
 
-    public function crear($nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol)
+    public function save($nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol)
      {
         
         $sql = "INSERT INTO usuario (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, id_rol) 
