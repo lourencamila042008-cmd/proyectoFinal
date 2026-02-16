@@ -14,6 +14,7 @@
         <input type="text" name="telefono" placeholder="telefono" value="<?=$datos['telefono']?>"><br>
         <input type="email" name="correo" placeholder="correo" value="<?=$datos['correo']?>"><br>
         <input type="text" name="id_rol" placeholder="id_rol" value="<?=$datos['id_rol']?>"><br>
+         <input type="password" name="contraseña" placeholder="contraseña" value="<?=$datos['contraseña']?>"><br>
         <button type="submit">Guardar</button>
     </form>
 </body>

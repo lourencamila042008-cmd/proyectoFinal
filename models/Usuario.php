@@ -21,11 +21,11 @@ class Usuario {
 }
     
 
-    public function save($nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol)
+    public function save($nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol, $contraseña)
      {
         
-        $sql = "INSERT INTO usuario (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, id_rol) 
-        VALUES ('$nombre_negocio', '$nombre_usuario', '$apellido_usuario', '$telefono', '$correo', $id_rol)";
+        $sql = "INSERT INTO usuario (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, id_rol, contraseña) 
+        VALUES ('$nombre_negocio', '$nombre_usuario', '$apellido_usuario', '$telefono', '$correo', $id_rol, '$contraseña')";
         # se guardan los datos 
         return $this->db->query($sql);
      }
@@ -40,9 +40,9 @@ class Usuario {
         
      }
 
-     public function update($id_usuario,$nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol){
+     public function update($id_usuario,$nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol, $contraseña){
      #consulta para actualizar   
-     $sql = "UPDATE usuario SET nombre_negocio='$nombre_negocio', nombre_usuario='$nombre_usuario', apellido_usuario='$apellido_usuario', telefono='$telefono', correo='$correo', id_rol=$id_rol WHERE 
+     $sql = "UPDATE usuario SET nombre_negocio='$nombre_negocio', nombre_usuario='$nombre_usuario', apellido_usuario='$apellido_usuario', telefono='$telefono', correo='$correo', id_rol=$id_rol, contraseña='$contraseña' WHERE 
      id_usuario=$id_usuario";
      
         return $this->db->query($sql);

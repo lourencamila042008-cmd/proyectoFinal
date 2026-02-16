@@ -21,7 +21,8 @@ public function crear(){
             $_POST['apellido_usuario'],
             $_POST['telefono'],
             $_POST['correo'],
-            $_POST['id_rol']
+                    $_POST['id_rol'],
+                      $_POST['contraseña']
         );
         header("Location: principal.php");
     }
@@ -38,13 +39,21 @@ public function editar(){
             $_POST['apellido_usuario'],
             $_POST['telefono'],
             $_POST['correo'],
-            $_POST['id_rol']
+            $_POST['id_rol'],
+            $_POST['contraseña']
         );
         header("Location: principal.php");
     }
     $datos = $usuario->GetById($_GET['id']);
     require_once __DIR__."/../views/usuario/editar.php";
 }
+
+public function eliminar(){
+    $usuario = new Usuario();
+    $u = $usuario->delete($_GET['id']);
+    header("location: principal.php");
+}
+
 }
 
 
