@@ -99,7 +99,7 @@
 
     <a class="btn-crear" href="principal.php?action=crear">➕ Crear usuario</a>
     <a href="principal.php?controller=login&action=logout">Cerrar sesión</a>
- <?=$_SESSION['usuario']?>
+ <?=$_SESSION['nombre_usuario']?>
  <?=$_SESSION['rol']?>
     <table>
         <thead>
