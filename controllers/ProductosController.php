@@ -17,7 +17,7 @@ class ProductosController{
         if($_POST){
             $productos = new Productos();
 
-            $productos->save(
+            $p = $productos->save(
                 $_POST['id_categoria'],
                 $_POST['nombre'],
                 $_POST['stock'],
@@ -39,7 +39,7 @@ class ProductosController{
         $productos = new Productos();
 
         if($_POST){
-            $productos->update(
+            $p = $productos->update(
                 $_POST['id'],
                 $_POST['id_categoria'],
                 $_POST['nombre'],
@@ -60,7 +60,7 @@ class ProductosController{
     /** ELIMINAR PRODUCTO */
     public function eliminar(){
         $productos = new Productos();
-        $productos->DELETE($_GET['id']);
+       $p = $productos->DELETE($_GET['id']);
 
         header("Location: principal.php?controller=productos&action=index");
         exit();
