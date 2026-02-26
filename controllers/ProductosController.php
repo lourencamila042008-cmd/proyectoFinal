@@ -1,0 +1,62 @@
+<?php
+/** llamando el archivo productos */
+require_once __DIR__. "/../Models/productos.php";
+
+class ProductosController{
+
+/**se crea la funcion index para mostrar los datos */
+public function index(){
+    $productos=new Productos();
+    $datos=$productos->mostrar();
+
+    require_once __DIR__. "/../views/productos/listar.php";
+
+}
+
+
+/**se crea la funcion para crear productos */
+public function crear(){
+    if($_POST){
+        $productos=new Productos();
+        $p=$productos->save(
+            $_POST['id_categoria'],
+            $_POST['nombre'],
+            $_POST['stock'],
+            $_POST['precio_compra'],
+            $_POST['precio_venta'],
+            $_POST['min_stock'],
+
+        );
+        header("location:principal.php");
+    }
+    require_once __DIR__. "/../Views/productos/crear.php";
+}
+
+/** se crear la funcion para editar productos */
+public function editar(){
+    $productos=new Productos();
+    if($_POST){
+        $p=$productos->update(
+            $_POST['id'],
+            $_POST['id_categoria'],
+            $_POST['nombre'],
+            $_POST['stock'],
+            $_POST['precio_compra'],
+            $_POST['precio_venta'],
+            $_POST['min_stock'],
+        );
+        header("location:principal.php");
+        }
+        $datos=$productos->GetById($_GET['id']);
+        require_once __DIR__. "/../Views/productos/editar.php";
+
+}
+
+public function eliminar(){
+    $productos=new productos();
+    $p=$productos->DELETE($_GET['id']);
+    header("location: principal.php");
+}
+
+}
+?>

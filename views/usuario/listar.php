@@ -98,7 +98,9 @@
     <h1>Lista de Usuarios</h1>
 
     <a class="btn-crear" href="principal.php?action=crear">➕ Crear usuario</a>
-
+    <a href="principal.php?controller=login&action=logout">Cerrar sesión</a>
+ <?=$_SESSION['usuario']?>
+ <?=$_SESSION['rol']?>
     <table>
         <thead>
             <tr>

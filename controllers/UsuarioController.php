@@ -1,8 +1,10 @@
 <?php
+/** llamando el archivo usuario */
 require_once __DIR__."/../models/Usuario.php";
 
 class UsuarioController{
 
+/**se crea la funcion index para mostrar los datos */
 public function index(){
  $usuario = new Usuario();
 $datos= $usuario->mostrar();
@@ -12,6 +14,7 @@ $datos= $usuario->mostrar();
 require_once __DIR__."/../views/usuario/listar.php";
 }
 
+/**se crea la funcion para crear usuarios */
 public function crear(){
     if($_POST){
         $usuario = new Usuario();
@@ -29,6 +32,7 @@ public function crear(){
     require_once __DIR__."/../views/usuario/crear.php";
 }
 
+/** se crear la funcion para editar usuario */
 public function editar(){
        $usuario = new Usuario();
       if($_POST){
@@ -48,6 +52,7 @@ public function editar(){
     require_once __DIR__."/../views/usuario/editar.php";
 }
 
+/**se crea la funcion para eliminar usuarios */
 public function eliminar(){
     $usuario = new Usuario();
     $u = $usuario->delete($_GET['id']);

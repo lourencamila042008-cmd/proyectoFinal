@@ -1,7 +1,9 @@
 <?php
 
+/** llamando archivo de la base de datos */
 require_once __DIR__."/../config/db.php";
 
+/**se crea la clase usuario para manejas los datos del usuario */
 class Usuario {
     private $db;
     public function __construct(){
@@ -20,7 +22,7 @@ class Usuario {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
     
-
+/**se crea la funcion para guardar lso datos del usuario */
     public function save($nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol, $contraseña)
      {
         

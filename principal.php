@@ -1,12 +1,21 @@
 <?php
+session_start();
+
 require_once "controllers/UsuarioController.php";
 require_once "controllers/AuthController.php";
 
 $controller=$_GET['controller'] ?? null;
 $action=$_GET['action'] ?? null;
 
-$controller=$controller ?? 'login';
-$action=$action ?? 'login';
+if(!isset($_SESSION['usuario'])){
+   $controller='login';
+$action='login';
+}
+else{
+  $controller=$controller ?? 'usuario';
+  $action=$action ?? 'index';
+}
+
 
 switch($controller){
   case 'usuario':
