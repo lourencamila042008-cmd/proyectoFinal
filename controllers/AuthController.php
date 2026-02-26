@@ -15,7 +15,7 @@ class AuthController{
                 echo "no se encontro el usuario";
             }
         }
-        require_once __DIR__."/../views/login.php";
+        require_once __DIR__."/../views/Auth/login.php";
     }
 
     public function logout(){

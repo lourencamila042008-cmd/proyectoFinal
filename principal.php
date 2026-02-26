@@ -5,8 +5,8 @@ require_once "controllers/AuthController.php";
 $controller=$_GET['controller'] ?? null;
 $action=$_GET['action'] ?? null;
 
-$controller=$controller ?? 'usuario';
-$action=$action ?? 'index';
+$controller=$controller ?? 'login';
+$action=$action ?? 'login';
 
 switch($controller){
   case 'usuario':
