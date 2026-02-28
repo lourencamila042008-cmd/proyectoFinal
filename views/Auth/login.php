@@ -1,84 +1,88 @@
+<?php
+session_start();
+require_once __DIR__ . "/../../config/db.php";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $usuario = $_POST["usuario"];
+    $clave = $_POST["clave"];
+
+    $conn = Database::Conectar();
+
+    // 🔹 Buscar usuario
+    $sql = "SELECT * FROM usuario 
+            WHERE correo = '$usuario' OR nombre_usuario = '$usuario'";
+
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+
+        $user = $result->fetch_assoc();
+
+        if ($user["contraseña"] == $clave) {
+
+            $_SESSION["id_usuario"] = $user["id_usuario"];
+
+            // 🔥 OBTENER ROL (VERSIÓN SEGURA)
+            $sqlRol = "SELECT r.tipo, r.id_rol
+                       FROM rol_user ru
+                       INNER JOIN rol r ON ru.id_rol = r.id_rol
+                       WHERE ru.id_usuario = ".$user["id_usuario"];
+
+            $resRol = $conn->query($sqlRol);
+
+            if($resRol->num_rows > 0){
+
+                $rol = $resRol->fetch_assoc();
+
+                $_SESSION["rol"] = $rol["tipo"];
+
+                // 🔥 REDIRECCIÓN CORRECTA
+                if ($rol["id_rol"] == 1) {
+                    header("Location: ../Admin/dashboard_admin.php");
+                } else {
+                    header("Location: ../Empleado/dashboard.php");
+                }
+                exit();
+
+            } else {
+                $error = "El usuario no tiene rol asignado";
+            }
+
+        } else {
+            $error = "Contraseña incorrecta";
+        }
+
+    } else {
+        $error = "Usuario no encontrado";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>Login</title>
-
-<style>
-.login-body{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  background:#f4f8ff;
-}
-
-.login-box{
-  background:white;
-  padding:40px;
-  border-radius:18px;
-  width:320px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.08);
-  text-align:center;
-}
-
-.login-box h1{
-  color:#1e5eff;
-  margin-bottom:25px;
-}
-
-.input{
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  border:1px solid #dbe5ff;
-  border-radius:8px;
-}
-
-.login-btn{
-  width:100%;
-  background:#1e5eff;
-  color:white;
-  border:none;
-  padding:12px;
-  border-radius:8px;
-  margin-top:15px;
-  font-weight:bold;
-}
-
-.logo{
-  font-size:22px;
-  font-weight:bold;
-  color:#1e5eff;
-  margin-bottom:15px;
-}
-
-.login-btn{
-  display:block;
-  width:100%;
-  background:#1e5eff;
-  color:white;
-  text-decoration:none;
-  padding:12px;
-  border-radius:8px;
-  margin-top:15px;
-  font-weight:bold;
-}
-</style>
+<link rel="stylesheet" href="../../public/css/login.css">
 </head>
 
-<body class="login-body"> 
+<body>
 
 <div class="login-box">
-    <div class="logo">INVOICEPRO</div>
+<div class="logo">INVOICEPRO</div>
 <h2>Iniciar Sesión</h2>
 
-<form action="" method="POST">
-    <input class="input" type="text" name="usuario" placeholder="Usuario" required>
-    <input class="input" type="password" name="clave" placeholder="Contraseña" required>
-    <button type="submit" class="login-btn">Entrar</button>
-    <a href="registro.php" class="">Registrarse</a>
+<?php if(isset($error)) echo "<p style='color:red'>$error</p>"; ?>
+
+<form method="POST">
+<input class="input" type="text" name="usuario" placeholder="Usuario" required>
+<input class="input" type="password" name="clave" placeholder="Contraseña" required>
+
+<button type="submit" class="login-btn">Entrar</button>
 </form>
+
+<a href="register.php" class="link">Registrarse</a>
+<a href="../../index.php" class="link">Volver al inicio</a>
 
 </div>
 

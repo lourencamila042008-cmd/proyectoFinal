@@ -1,0 +1,52 @@
+body{
+  margin:0;
+  font-family:'Segoe UI', Arial;
+  background:linear-gradient(135deg,#6ea8ff,#1e5eff);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.register-box{
+  background:white;
+  padding:40px;
+  border-radius:18px;
+  width:380px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+  text-align:center;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:bold;
+  color:#1e5eff;
+  margin-bottom:15px;
+}
+
+.input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border:1px solid #dbe5ff;
+  border-radius:10px;
+}
+
+.register-btn{
+  width:100%;
+  background:#1e5eff;
+  color:white;
+  border:none;
+  padding:12px;
+  border-radius:10px;
+  margin-top:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.link{
+  display:block;
+  margin-top:15px;
+  color:#1e5eff;
+  text-decoration:none;
+}
