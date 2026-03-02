@@ -5,25 +5,28 @@ require_once "controllers/UsuarioController.php";
 require_once "controllers/AuthController.php";
 require_once "controllers/ProductosController.php";
 
-$controller = $_GET['controller'] ?? null;
-$action = $_GET['action'] ?? null;
+$controller = $_GET['controller'] ?? 'auth';
+$action     = $_GET['action'] ?? 'login';
 
-/** 🔥 ARREGLO AQUÍ */
-if(!isset($_SESSION['usuario'])){
-    $controller = 'login';
+// 🔐 SI NO ESTÁ LOGUEADO → SOLO AUTH
+if(!isset($_SESSION['usuario']) && $controller != 'auth'){
+    $controller = 'auth';
     $action = 'login';
 }
-else{
-    $controller = $controller ?? 'usuario';
-    $action = $action ?? 'index';
+
+// 🔒 SI YA ESTÁ LOGUEADO Y QUIERE LOGIN → REDIRIGIR
+if(isset($_SESSION['usuario']) && $controller == 'auth'){
+    $controller = 'usuario';
+    $action = 'index';
 }
 
 switch($controller){
+
   case 'usuario':
     $controller = new UsuarioController();
     break;
 
-  case 'login':
+  case 'auth':
     $controller = new AuthController();
     break;
 
@@ -32,13 +35,12 @@ switch($controller){
     break;
 
   default:
-    $controller = new UsuarioController();
+    $controller = new AuthController();
     break;
 }
 
 if(method_exists($controller,$action)){
     $controller->$action();
 }else{
-    echo "la action no esta permitida o no existe";
+    echo "La acción no existe";
 }
-?>

@@ -1,46 +1,73 @@
 <?php
-require_once __DIR__."/../models/Auth.php";  
+
+require_once __DIR__."/../models/Auth.php";
 
 class AuthController{
 
-public function login(){
+    // 🔐 LOGIN
+    public function login(){
 
         if($_POST){
-            session_start(); // 🔥 IMPORTANTE
+
+            if(session_status() === PHP_SESSION_NONE){
+                session_start();
+            }
+
+            $usuario = $_POST['usuario'];
+            $password = $_POST['password'];
 
             $model = new Auth();
-            $login = $model->login($_POST['usuario'],$_POST['clave']);
-           
+            $login = $model->login($usuario,$password);
+
             if($login){
 
-                // 🔥 DEBE COINCIDIR CON principal.php
-                $_SESSION['nombre_usuario'] = $login['nombre_usuario'];
-                $_SESSION['rol'] = $login['tipo'];
+                $_SESSION['usuario'] = $login['nombre_usuario'];
+                $_SESSION['id_usuario'] = $login['id_usuario'];
+                $_SESSION['rol'] = strtolower($login['tipo']);
 
-                if($_SESSION['rol']=='admin'){
-                    header("Location: principal.php?controller=login&action=admin");
-                    exit();
+                // 🔥 REDIRECCIÓN POR ROL
+                if($_SESSION['rol'] == 'admin'){
+                    header("Location: index.php?controller=admin&action=index");
+                    exit;
                 }
 
-                header("Location: principal.php?controller=usuario&action=index");
-                exit();
-                
-            } else {
-                echo "No se encontró el usuario";
+                header("Location: index.php?controller=usuario&action=index");
+                exit;
             }
+
+            echo "Credenciales incorrectas";
         }
 
         require_once __DIR__."/../views/Auth/login.php";
     }
 
-public function logout(){
-        session_start();
-        session_destroy();
-        header("Location: principal.php");
+
+    // 📝 REGISTER
+    public function register(){
+
+        if($_POST){
+
+            $model = new Auth();
+
+            if($model->register($_POST)){
+                header("Location: index.php?controller=auth&action=login");
+                exit;
+            }else{
+                echo "Error al registrar";
+            }
+        }
+
+        require_once __DIR__."/../views/Auth/register.php";
     }
 
-public function admin(){
-        require_once __DIR__."/../views/admin/admin.php";
+
+    // 🚪 LOGOUT
+    public function logout(){
+
+        session_start();
+        session_destroy();
+
+        header("Location: index.php");
     }
 }
 ?>

@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-// 🔐 PROTEGER SOLO ADMIN
-if (!isset($_SESSION['rol']) || $_SESSION['rol'] != 'Administrador') {
+// 🔐 SOLO ADMIN
+if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
     header("Location: ../Auth/login.php");
     exit();
 }
@@ -12,59 +12,56 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] != 'Administrador') {
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Admin - InvoicePro</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-<!-- 🔥 CSS EXTERNO -->
-<link rel="stylesheet" href="../../public/css/dashboard_admin.css">
-
+<title>Panel Administrador - InvoicePro</title>
+<link rel="stylesheet" href="../../public/css/admin.css">
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-    <div class="logo">INVOICEPRO</div>
 
-    <div class="menu">
-        <a href="#">🏠 Inicio</a>
-        <a href="../Productos/listar.php">📦 Productos</a>
-        <a href="../Facturas/crear.php">🧾 Crear Factura</a>
-        <a href="../Facturas/listar.php">📊 Historial Facturas</a>
-    </div>
+    <h2>InvoicePro</h2>
 
-    <div class="logout">
-        <a href="../Auth/logout.php">Cerrar sesión</a>
-    </div>
+    <ul>
+        <li>📦 Inventario</li>
+        <li>🧾 Facturación</li>
+        <li>💰 Ingresos</li>
+        <li>👥 Usuarios</li>
+    </ul>
+
+    <a href="../Auth/logout.php" class="logout">Cerrar sesión</a>
+
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-    <div class="header">
-        <div class="title">Dashboard Administrador</div>
-    </div>
+    <h1>Panel de Administrador</h1>
+    <p>Bienvenido, <?php echo $_SESSION["usuario"]; ?> 👑</p>
 
     <div class="cards">
 
         <div class="card">
-            <h3>Gestionar Productos</h3>
-            <p>Crear, editar y eliminar productos del sistema.</p>
-            <a class="btn" href="../Productos/listar.php">Ir a Productos</a>
+            <h3>Inventario</h3>
+            <p>Gestiona productos y stock</p>
+            <button>Administrar</button>
         </div>
 
         <div class="card">
-            <h3>Crear Factura</h3>
-            <p>Generar nuevas facturas para clientes.</p>
-            <a class="btn" href="../Facturas/crear.php">Nueva Factura</a>
+            <h3>Facturación</h3>
+            <p>Crear y ver facturas</p>
+            <button>Ir a facturación</button>
         </div>
 
         <div class="card">
-            <h3>Reportes</h3>
-            <p>Ver estadísticas y ventas del negocio.</p>
-            <a class="btn" href="../Reportes/index.php">Ver Reportes</a>
+            <h3>Ingresos</h3>
+            <p>Visualiza ganancias</p>
+            <button>Ver reportes</button>
+        </div>
+
+        <div class="card">
+            <h3>Usuarios</h3>
+            <p>Gestiona roles y cuentas</p>
+            <button>Administrar usuarios</button>
         </div>
 
     </div>
