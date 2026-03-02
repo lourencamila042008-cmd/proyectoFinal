@@ -43,13 +43,13 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
         <div class="card">
             <h3>Inventario</h3>
             <p>Gestiona productos y stock</p>
-            <button>Administrar</button>
+            <button onclick="location.href='inventario.php'">Administrar</button>
         </div>
 
         <div class="card">
             <h3>Facturación</h3>
             <p>Crear y ver facturas</p>
-            <button>Ir a facturación</button>
+            <button onclick="location.href='facturacion.php'">Ir a facturación</button>
         </div>
 
         <div class="card">
