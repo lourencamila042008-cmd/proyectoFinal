@@ -6,6 +6,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
     header("Location: ../Auth/login.php");
     exit();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -49,7 +50,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
         <div class="card">
             <h3>Facturación</h3>
             <p>Crear y ver facturas</p>
-            <button onclick="location.href='facturacion.php'">Ir a facturación</button>
+            <button onclick="location.href='facturas.php'">Ir a facturación</button>
         </div>
 
         <div class="card">

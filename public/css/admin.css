@@ -92,3 +92,10 @@ body {
 .card button:hover {
     background: #182848;
 }
+.alerta{
+background:#ff4d4d;
+color:white;
+padding:10px;
+margin:5px;
+border-radius:5px;
+}

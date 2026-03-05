@@ -12,11 +12,14 @@ $conn = Database::Conectar();
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     $nombre = $_POST["nombre"];
-    $precio = $_POST["precio"];
-    $stock  = $_POST["stock"];
+      $stock  = $_POST["stock"];
+    $precio = $_POST["precio_venta"];
+    $precio_compra = $_POST["precio_compra"];
+    $min_stock = $_POST["min_stock"];
+  
 
     $sql = "INSERT INTO productos(id_categoria, nombre, stock, precio_compra, precio_venta, min_stock)
-            VALUES (1, '$nombre', $stock, $precio, $precio, 5)";
+            VALUES (1, '$nombre', $stock, $precio_compra, $precio, 5)";
 
     if($conn->query($sql)){
         header("Location: inventario.php");
@@ -42,10 +45,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <form method="POST">
 
 <input type="text" name="nombre" placeholder="Nombre del producto" required>
-
-<input type="number" step="0.01" name="precio" placeholder="Precio" required>
-
 <input type="number" name="stock" placeholder="Cantidad en stock" required>
+
+<input type="number" step="0.01" name="precio_venta" placeholder="Precio de venta" required>
+
+<input type="number" name="precio_compra" placeholder="Precio de compra" required>
+
+<input type="number" name="min_stock" placeholder="Mínimo stock" required>
 
 <button type="submit">Guardar</button>
 
