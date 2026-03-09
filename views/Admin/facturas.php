@@ -28,16 +28,20 @@ $result = $conn->query($sql);
 
 <tr>
 <th>ID</th>
+<th>venta</th>
 <th>Estado</th>
 <th>Método pago</th>
+<th>Detalle Factura</th>
 </tr>
 
 <?php while($row = $result->fetch_assoc()) { ?>
 
 <tr>
 <td><?php echo $row["id_facturas"]; ?></td>
-<td><?php echo $row["estado"]; ?></td>
+<td><?php echo $row["id_venta"]?></td>
 <td><?php echo $row["metodo_pago"]; ?></td>
+<td><?php echo $row["estado"]; ?></td>
+<td><?php echo $row["id_detallefactura"]; ?></td>
 </tr>
 
 <?php } ?>

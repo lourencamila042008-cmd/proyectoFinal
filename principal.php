@@ -4,6 +4,8 @@ session_start();
 require_once "controllers/UsuarioController.php";
 require_once "controllers/AuthController.php";
 require_once "controllers/ProductosController.php";
+require_once "controllers/FacturasController.php";
+require_once "controllers/GarantiasController.php";
 
 $controller = $_GET['controller'] ?? 'auth';
 $action     = $_GET['action'] ?? 'login';
@@ -33,6 +35,11 @@ switch($controller){
   case 'productos':
     $controller = new ProductosController();
     break;
+
+    case 'facturas':
+      $controller = new FacturasController();
+      break;
+
 
   default:
     $controller = new AuthController();

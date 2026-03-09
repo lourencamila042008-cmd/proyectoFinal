@@ -65,6 +65,13 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
             <button>Administrar usuarios</button>
         </div>
 
+         <div class="card">
+            <h3>Garantias</h3>
+            <p>Gestiona de garantias</p>
+            <button onclick="location.href='garantias/iniciogarantias.php'">Administrar garantias</button>
+        </div>
+
+
     </div>
 
 </div>
