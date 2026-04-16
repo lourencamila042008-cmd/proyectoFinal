@@ -50,7 +50,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
         <div class="card">
             <h3>Facturación</h3>
             <p>Crear y ver facturas</p>
-            <button onclick="location.href='facturas.php'">Ir a facturación</button>
+            <button onclick="location.href='facturas/facturas.php'">Ir a facturación</button>
         </div>
 
         <div class="card">
@@ -62,7 +62,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
         <div class="card">
             <h3>Usuarios</h3>
             <p>Gestiona roles y cuentas</p>
-            <button>Administrar usuarios</button>
+            <button onclick="location.href='usuario/usuarios.php'">Administrar usuarios</button>
         </div>
 
          <div class="card">
@@ -70,6 +70,13 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
             <p>Gestiona de garantias</p>
             <button onclick="location.href='garantias/iniciogarantias.php'">Administrar garantias</button>
         </div>
+
+         <div class="card">
+            <h3>clientes</h3>
+            <p>Gestiona de clientes</p>
+            <button onclick="location.href='clientes/clientes.php'">Administrar clientes</button>
+        </div>
+
 
 
     </div>

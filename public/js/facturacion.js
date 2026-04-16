@@ -67,3 +67,4 @@ carrito.splice(i,1)
 render()
 
 }
+

@@ -1,4 +1,5 @@
 <?php
+require_once "models/Usuario.php";
 
 class UsuarioController{
 
@@ -6,4 +7,15 @@ class UsuarioController{
         echo "<h1>Bienvenida a InvoicePro 💙</h1>";
         echo "<a href='index.php?controller=auth&action=logout'>Cerrar sesión</a>";
     }
+
+    public function guardar(){
+
+        $model = new Usuario();
+
+        $model->crear($_POST);
+
+        header("Location: /MVC-PRU/index.php?controller=Usuario&action=listar&msg=creado");
+        exit();
+    }
+
 }

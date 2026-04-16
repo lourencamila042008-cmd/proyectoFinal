@@ -1,1 +1,0 @@
-<button onclick="window.print()">Imprimir factura</button>

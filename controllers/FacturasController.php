@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__."/../models/Factura.php";
+require_once __DIR__."/../models/facturas.php";
 
 class FacturasController{
 
@@ -55,5 +55,14 @@ $model->crearFactura($idVenta,$metodo);
 header("Location: index.php?controller=facturas&action=listar");
 
 }
-
 }
+
+if(isset($_GET["eliminar"])){
+    $id = $_GET["eliminar"];
+
+    $conn = Database::Conectar();
+    $conn->query("DELETE FROM facturas WHERE id_facturas = $id");
+
+    header("Location: ../views/Admin/facturas/index.php");
+}
+

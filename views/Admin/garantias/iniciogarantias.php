@@ -1,6 +1,14 @@
 <?php
 require_once "../../../config/db.php";
 
+if(isset($_GET['msg'])){ ?>
+
+    <?php if($_GET['msg'] == "creado"){ ?>
+        <div class="alert success">Garantía creada correctamente ✅</div>
+    <?php } ?>
+
+<?php }
+
 $conn = Database::Conectar();
 
 $garantias = $conn->query("
@@ -18,7 +26,7 @@ ORDER BY g.id_garantia DESC
 <meta charset="UTF-8">
 <title>Garantías</title>
 
-<link rel="stylesheet" href="../../../public/css/admin.css">
+<link rel="stylesheet" href="../../../public/css/garantias.css">
 
 </head>
 
@@ -30,8 +38,9 @@ ORDER BY g.id_garantia DESC
 
 <h1>Garantías</h1>
 
-<a class="btn" href="crear.php">+ Nueva garantía</a>
-
+<a class="btn" href="crear_garantia.php">
+    + Nueva garantía
+</a>
 </div>
 
 <table class="table">

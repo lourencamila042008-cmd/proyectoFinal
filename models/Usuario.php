@@ -6,53 +6,31 @@ require_once __DIR__."/../config/db.php";
 /**se crea la clase usuario para manejas los datos del usuario */
 class Usuario {
     private $db;
-    public function __construct(){
-        $this->db = Database::Conectar();
-    }
-    public function mostrar(){
-        #consulta para obtener toddos los ususario
-        $sql = "SELECT * FROM usuario";
-        #ejecutar la consulta
-        $result = $this->db->query($sql);
-        
-          if(!$result){
-        die("Error en consulta: " . $this->db->error);
+   public function crear($datos){
+
+    $conexion = new mysqli("localhost", "root", "", "tu_base_datos");
+
+    if($conexion->connect_error){
+        die("Error conexión: " . $conexion->connect_error);
     }
 
-    return $result->fetch_all(MYSQLI_ASSOC);
+    $sql = "INSERT INTO usuarios 
+    (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, id_rol, contraseña)
+    VALUES (
+        '{$datos["nombre_negocio"]}',
+        '{$datos["nombre_usuario"]}',
+        '{$datos["apellido_usuario"]}',
+        '{$datos["telefono"]}',
+        '{$datos["correo"]}',
+        '{$datos["id_rol"]}',
+        '{$datos["contraseña"]}'
+    )";
+
+    if(!$conexion->query($sql)){
+        die("ERROR SQL: " . $conexion->error);
+    }
+
+    echo "GUARDADO OK";
+    die();
 }
-    
-/**se crea la funcion para guardar lso datos del usuario */
-    public function save($nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol, $contraseña)
-     {
-        
-        $sql = "INSERT INTO usuario (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, id_rol, contraseña) 
-        VALUES ('$nombre_negocio', '$nombre_usuario', '$apellido_usuario', '$telefono', '$correo', $id_rol, '$contraseña')";
-        # se guardan los datos 
-        return $this->db->query($sql);
-     }
-
-     public function GetById($id){
-     #consulta para buscar  
-     $sql = "SELECT * FROM usuario WHERE id_usuario = $id";
-       
-     $result = $this->db->query($sql);
-     #envia y guarda valor buscado   
-     return $result->fetch_assoc();
-        
-     }
-
-     public function update($id_usuario,$nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id_rol, $contraseña){
-     #consulta para actualizar   
-     $sql = "UPDATE usuario SET nombre_negocio='$nombre_negocio', nombre_usuario='$nombre_usuario', apellido_usuario='$apellido_usuario', telefono='$telefono', correo='$correo', id_rol=$id_rol, contraseña='$contraseña' WHERE 
-     id_usuario=$id_usuario";
-     
-        return $this->db->query($sql);
-     }
-
-     public function delete($id){
-        $sql = "DELETE FROM usuario WHERE id_usuario = $id";
-        return $this->db->query($sql);
-     }
 }
-?>

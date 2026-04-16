@@ -86,6 +86,7 @@ class Auth {
                     INSERT INTO rol_user (id_rol,id_usuario)
                     VALUES (?,?)
                 ");
+                
 
                 $sqlUserRol->bind_param("ii",$id_rol,$id_usuario);
 

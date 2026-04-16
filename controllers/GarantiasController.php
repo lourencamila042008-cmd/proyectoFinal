@@ -1,28 +1,42 @@
 <?php
+require_once "config/db.php";
 
-require_once "../config/db.php";
+class GarantiasController{
 
-$conn = Database::Conectar();
+    // 🔹 Mostrar lista
+    public function index(){
+        require_once "views/Admin/garantias/index.php";
+    }
 
-$id_factura = $_POST["id_factura"];
-$id_producto = $_POST["id_producto"];
-$motivo = $_POST["motivo"];
-$solucion = $_POST["solucion"];
-$estado = $_POST["estado"];
+    // 🔹 Mostrar formulario
 
-$stmt = $conn->prepare("
+    public function crear(){
+        echo "SI ENTRA A CREAR";
+        die();
+    }
 
-INSERT INTO garantias
-(id_factura,id_producto,motivo,solucion,estado)
 
-VALUES (?,?,?,?,?)
+    // 🔹 Guardar garantía
+    public function guardar(){
 
-");
+        $conn = Database::Conectar();
 
-$stmt->bind_param("iisss",$id_factura,$id_producto,$motivo,$solucion,$estado);
+        $id_facturas = $_POST["id_facturas"];
+        $id_producto = $_POST["id_producto"];
+        $motivo = $_POST["motivo"];
+        $solucion = $_POST["solucion"];
+        $estado = $_POST["estado"];
+        $fecha_inicio = $_POST["fecha_inicio"];
+        $fecha_fin = $_POST["fecha_fin"];
 
-$stmt->execute();
+        $sql = "INSERT INTO garantias 
+        (id_facturas, id_producto, motivo, solucion, estado, fecha_inicio, fecha_fin)
+        VALUES 
+        ('$id_facturas','$id_producto','$motivo','$solucion','$estado','$fecha_inicio','$fecha_fin')";
 
-header("Location: ../views/garantias/index.php");
+        $conn->query($sql);
 
-?>
+        header("Location: /MVC-PRU/index.php?controller=Garantias&action=index&msg=creado");
+        exit();
+    }
+}
