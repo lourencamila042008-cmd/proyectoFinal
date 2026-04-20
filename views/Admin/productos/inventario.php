@@ -20,7 +20,7 @@ $result = $conn->query($sql);
 <head>
 <meta charset="UTF-8">
 <title>Inventario - InvoicePro</title>
-<link rel="stylesheet" href="../../public/css/inventario.css">
+<link rel="stylesheet" href="../../../public/css/productos/inventario.css">
 </head>
 
 <body>
@@ -34,7 +34,7 @@ $result = $conn->query($sql);
         ➕ Agregar producto
     </button>
 </div>
-
+<div class="table-container">
 <table id="tablaProductos">
 
 <thead>
@@ -66,7 +66,7 @@ $result = $conn->query($sql);
 
 </tbody>
 </table>
-
+</div>
 <script>
 // 🔎 BUSCADOR EN TIEMPO REAL
 document.getElementById("buscar").addEventListener("keyup", function() {
