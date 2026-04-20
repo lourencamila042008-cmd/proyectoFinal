@@ -1,62 +1,112 @@
-body{
-  margin:0;
-  font-family:'Segoe UI', Arial;
-  background:linear-gradient(135deg,#1e5eff,#6ea8ff);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.login-box{
-  background:white;
-  padding:40px;
-  border-radius:18px;
-  width:340px;
-  box-shadow:0 15px 35px rgba(0,0,0,0.15);
-  text-align:center;
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #1e5eff, #6ea8ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-.logo{
-  font-size:24px;
-  font-weight:bold;
-  color:#1e5eff;
-  margin-bottom:15px;
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  text-align: center;
 }
 
-h2{
-  color:#1e5eff;
-  margin-bottom:20px;
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1e5eff;
+  margin-bottom: 15px;
 }
 
-.input{
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  border:1px solid #dbe5ff;
-  border-radius:10px;
+h2 {
+  color: #1e5eff;
+  margin-bottom: 20px;
+  font-size: clamp(18px, 4vw, 24px);
 }
 
-.login-btn{
-  width:100%;
-  background:#1e5eff;
-  color:white;
-  border:none;
-  padding:12px;
-  border-radius:10px;
-  margin-top:15px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.3s;
+.input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #dbe5ff;
+  border-radius: 10px;
+  font-size: 15px;
 }
 
-.login-btn:hover{
-  background:#174bcc;
+.input:focus {
+  border-color: #1e5eff;
+  outline: none;
+  box-shadow: 0 0 6px rgba(30,94,255,0.3);
 }
 
-.link{
-  display:block;
-  margin-top:15px;
-  color:#1e5eff;
-  text-decoration:none;
+.login-btn {
+  width: 100%;
+  background: #1e5eff;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.login-btn:hover {
+  background: #174bcc;
+}
+
+.link {
+  display: block;
+  margin-top: 15px;
+  color: #1e5eff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ── TABLETS (max 768px) ── */
+@media (max-width: 768px) {
+  .login-box {
+    padding: 30px 25px;
+  }
+}
+
+/* ── MÓVILES (max 480px) ── */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 25px 18px;
+    border-radius: 12px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .login-btn {
+    padding: 11px;
+    font-size: 14px;
+  }
 }
