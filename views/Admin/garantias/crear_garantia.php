@@ -2,6 +2,7 @@
 require_once "../../../config/db.php";
 $conn = Database::Conectar();
 
+$errores = [];
 $mensaje = "";
 
 // Procesar formulario
@@ -14,26 +15,74 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $fecha_inicio  = $_POST['fecha_inicio'];
     $fecha_fin     = $_POST['fecha_fin'];
 
+     // VALIDACIONES
+
+    // IDs
+    if ($id_facturas <= 0) {
+        $errores[] = "Debe seleccionar una factura válida";
+    }
+
+    if ($id_producto <= 0) {
+        $errores[] = "Debe seleccionar un producto válido";
+    }
+
+    // Motivo
+    $motivos_validos = ["ninguno", "daño"];
+    if (!in_array($motivo, $motivos_validos)) {
+        $errores[] = "Motivo no válido";
+    }
+
+    // Solución
+    $soluciones_validas = ["cambio", "reparacion", "devolucion"];
+    if (!in_array($solucion, $soluciones_validas)) {
+        $errores[] = "Solución no válida";
+    }
+
+    // Estado
+    $estados_validos = ["pendiente", "en_revision", "resuelto"];
+    if (!in_array($estado, $estados_validos)) {
+        $errores[] = "Estado no válido";
+    }
+
+    // Fechas
     if (empty($fecha_inicio) || empty($fecha_fin)) {
-        $mensaje = "Las fechas son obligatorias.";
+        $errores[] = "Las fechas son obligatorias";
     } else {
+        if ($fecha_fin < $fecha_inicio) {
+            $errores[] = "La fecha fin no puede ser menor que la fecha inicio";
+        }
+    }
+
+    // SI TODO ESTÁ BIEN
+    if (empty($errores)) {
+
         $stmt = $conn->prepare("INSERT INTO garantias 
-            (id_facturas, id_producto, motivo, solucion, estado, fecha_inicio, fecha_fin) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iisssss", $id_facturas, $id_producto, $motivo, $solucion, $estado, $fecha_inicio, $fecha_fin);
+        (id_facturas, id_producto, motivo, solucion, estado, fecha_inicio, fecha_fin) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+        $stmt->bind_param(
+            "iisssss",
+            $id_facturas,
+            $id_producto,
+            $motivo,
+            $solucion,
+            $estado,
+            $fecha_inicio,
+            $fecha_fin
+        );
 
         if ($stmt->execute()) {
             $stmt->close();
-           echo "<script>alert('Garantía registrada correctamente'); window.location='iniciogarantias.php';</script>";
+            echo "<script>alert('Garantía registrada correctamente'); window.location='iniciogarantias.php';</script>";
             exit;
         } else {
-            $mensaje = "Error al guardar: " . $conn->error;
+            $errores[] = "Error al guardar la garantía";
             $stmt->close();
         }
     }
 }
 
-// Cargar facturas y productos para los selects
+// CONSULTAS
 $facturas  = $conn->query("SELECT f.id_facturas, c.nombre FROM facturas f JOIN clientes c ON f.id_clientes = c.id_clientes ORDER BY f.id_facturas DESC");
 $productos = $conn->query("SELECT * FROM productos ORDER BY nombre ASC");
 ?>
@@ -52,9 +101,13 @@ $productos = $conn->query("SELECT * FROM productos ORDER BY nombre ASC");
 
     <h1>Nueva Garantía</h1>
 
-    <?php if ($mensaje != ""): ?>
-        <div class="mensaje"><?= htmlspecialchars($mensaje) ?></div>
-    <?php endif; ?>
+   <?php if (!empty($errores)): ?>
+    <div class="mensaje" style="color:red;">
+        <?php foreach($errores as $e): ?>
+            <p><?= htmlspecialchars($e) ?></p>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
     <form method="POST" action="crear_garantia.php">
 

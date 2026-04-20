@@ -4,18 +4,50 @@ require_once "../../../models/clientes.php";
 
 $model = new Cliente();
 
+$errores = [];
+
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $nombre = $_POST['nombre'];
     $cedula = $_POST['cedula'];
     $telefono = $_POST['telefono'];
+ // VALIDACIONES
 
-    $guardar = $model->crear($nombre, $cedula, $telefono);
+    // Nombre
+    if (empty($nombre)) {
+        $errores[] = "El nombre es obligatorio";
+    } elseif (strlen($nombre) < 3) {
+        $errores[] = "El nombre es muy corto";
+    }
 
-    if($guardar){
-        echo "<script>alert('Cliente guardado'); window.location='clientes.php';</script>";
-    } else {
-        echo "Error al guardar";
+    // Cédula
+    if (empty($cedula)) {
+        $errores[] = "La cédula es obligatoria";
+    } elseif (!ctype_digit($cedula)) {
+        $errores[] = "La cédula solo debe contener números";
+    } elseif (strlen($cedula) < 6 || strlen($cedula) > 15) {
+        $errores[] = "La cédula no tiene un formato válido";
+    }
+
+    // Teléfono (opcional pero validado)
+    if (!empty($telefono)) {
+        if (!ctype_digit($telefono)) {
+            $errores[] = "El teléfono solo debe contener números";
+        } elseif (strlen($telefono) < 7 || strlen($telefono) > 15) {
+            $errores[] = "El teléfono no es válido";
+        }
+    }
+
+    // SI TODO ESTÁ BIEN
+    if (empty($errores)) {
+
+        $guardar = $model->crear($nombre, $cedula, $telefono);
+
+        if($guardar){
+            echo "<script>alert('Cliente guardado'); window.location='clientes.php';</script>";
+        } else {
+            $errores[] = "Error al guardar el cliente";
+        }
     }
 }
 ?>
@@ -24,7 +56,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <head>
 <meta charset="UTF-8">
 <title>Nuevo Cliente</title>
-<link rel="stylesheet" href="../../../public/css/clientes/crear_clientes.css">
+<link rel="stylesheet" href="../../../public/css/clientes/crear_cliente.css">
 </head>
 
 
@@ -33,6 +65,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <div class="container">
 
 <h1>Nuevo Cliente</h1>
+
+<?php if (!empty($errores)): ?>
+    <div style="color:red;">
+        <?php foreach($errores as $e): ?>
+            <p><?= htmlspecialchars($e) ?></p>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
 <form method="POST">
 

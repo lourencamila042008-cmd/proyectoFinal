@@ -24,7 +24,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
     <h2>InvoicePro</h2>
 
     <ul>
-        <li>📦 Inventario</li>
+       <li >📦 Inventario</li>
         <li>🧾 Facturación</li>
         <li>💰 Ingresos</li>
         <li>👥 Usuarios</li>
@@ -44,7 +44,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
         <div class="card">
             <h3>Inventario</h3>
             <p>Gestiona productos y stock</p>
-            <button onclick="location.href='inventario.php'">Administrar</button>
+            <button onclick="location.href='productos/inventario.php'">Administrar</button>
         </div>
 
         <div class="card">

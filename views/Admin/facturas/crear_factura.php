@@ -2,32 +2,111 @@
 require_once "../../../config/db.php";
 $conn = Database::Conectar();
 
+$errores = [];
+
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $subtotal = $_POST['cantidad'] * $_POST['precio'];
 
-    // 1️⃣ Insertar detalle sin id_facturas todavía
-    $stmt = $conn->prepare("INSERT INTO detallefactura (id_productos, cantidad, precio, subtotal) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iidd", $_POST['id_productos'], $_POST['cantidad'], $_POST['precio'], $subtotal);
-    $stmt->execute();
-    $id_detalle = $conn->insert_id;
-    $stmt->close();
+    // VALIDACIONES
 
-    // 2️⃣ Insertar factura con el id_detalle recién creado
-    $stmt = $conn->prepare("INSERT INTO facturas (id_clientes, id_detallefactura, estado, fecha) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiss", $_POST['id_clientes'], $id_detalle, $_POST['estado'], $_POST['fecha']);
-    $stmt->execute();
-    $id_factura = $conn->insert_id;
-    $stmt->close();
+    // Cliente
+    if ($id_cliente <= 0) {
+        $errores[] = "Cliente inválido";
+    }
 
-    // 3️⃣ Actualizar el detalle con el id_facturas
-    $stmt = $conn->prepare("UPDATE detallefactura SET id_facturas = ? WHERE id_detallefactura = ?");
-    $stmt->bind_param("ii", $id_factura, $id_detalle);
-    $stmt->execute();
-    $stmt->close();
+    // Producto
+    if ($id_producto <= 0) {
+        $errores[] = "Producto inválido";
+    }
 
-    header("Location: facturas.php");
-    exit;
+    // Cantidad
+    if (!is_numeric($cantidad) || $cantidad <= 0) {
+        $errores[] = "La cantidad debe ser mayor a 0";
+    }
+
+    // Precio
+    if (!is_numeric($precio) || $precio < 0) {
+        $errores[] = "El precio no puede ser negativo";
+    }
+
+    // Estado
+    $estados_validos = ["pagada", "pendiente", "anulada"];
+    if (!in_array($estado, $estados_validos)) {
+        $errores[] = "Estado no válido";
+    }
+
+    // Fecha
+    if (empty($fecha)) {
+        $errores[] = "La fecha es obligatoria";
+    }
+
+    // SI TODO OK
+    if (empty($errores)) {
+
+        $subtotal = $cantidad * $precio;
+
+        // 🔥 INICIAR TRANSACCIÓN
+        $conn->begin_transaction();
+
+        try {
+
+            // 1️⃣ Insertar detalle
+            $stmt = $conn->prepare("INSERT INTO detallefactura 
+            (id_productos, cantidad, precio, subtotal) 
+            VALUES (?, ?, ?, ?)");
+
+            $stmt->bind_param("iidd", $id_producto, $cantidad, $precio, $subtotal);
+            $stmt->execute();
+            $id_detalle = $conn->insert_id;
+            $stmt->close();
+
+            // 2️⃣ Insertar factura
+            $stmt = $conn->prepare("INSERT INTO facturas 
+            (id_clientes, id_detallefactura, estado, fecha) 
+            VALUES (?, ?, ?, ?)");
+
+            $stmt->bind_param("iiss", $id_cliente, $id_detalle, $estado, $fecha);
+            $stmt->execute();
+            $id_factura = $conn->insert_id;
+            $stmt->close();
+
+            // 3️⃣ Actualizar detalle
+            $stmt = $conn->prepare("UPDATE detallefactura 
+            SET id_facturas = ? 
+            WHERE id_detallefactura = ?");
+
+            $stmt->bind_param("ii", $id_factura, $id_detalle);
+            $stmt->execute();
+            $stmt->close();
+
+            // 4️⃣ (OPCIONAL PERO RECOMENDADO) RESTAR STOCK
+            $stmt = $conn->prepare("UPDATE productos 
+            SET stock = stock - ? 
+            WHERE id_productos = ? AND stock >= ?");
+
+            $stmt->bind_param("iii", $cantidad, $id_producto, $cantidad);
+            $stmt->execute();
+
+            if ($stmt->affected_rows == 0) {
+                throw new Exception("Stock insuficiente");
+            }
+
+            $stmt->close();
+
+            // ✅ CONFIRMAR TODO
+            $conn->commit();
+
+            header("Location: facturas.php");
+            exit;
+
+        } catch (Exception $e) {
+
+            // ❌ SI ALGO FALLA → REVERSA TODO
+            $conn->rollback();
+            $errores[] = $e->getMessage();
+        }
+    }
 }
 
 $clientes = $conn->query("SELECT * FROM clientes");
@@ -46,6 +125,13 @@ $productos = $conn->query("SELECT * FROM productos");
 <div class="container">
 
     <h1>Nueva Factura</h1>
+    <?php if (!empty($errores)): ?>
+    <div style="color:red;">
+        <?php foreach($errores as $e): ?>
+            <p><?= htmlspecialchars($e) ?></p>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
     <form method="POST" action="crear_factura.php">
 
