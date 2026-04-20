@@ -2,13 +2,28 @@
 require_once "../../../config/db.php";
 $conn = Database::Conectar();
 
-$conn->query("INSERT INTO facturas (id_clientes, estado, fecha)
-VALUES ('$_POST[id_clientes]','$_POST[estado]','$_POST[fecha]')");
+$subtotal = $_POST['cantidad'] * $_POST['precio'];
 
-$id = $conn->insert_id;
+// 1️⃣ Insertar detalle sin id_facturas todavía
+$stmt = $conn->prepare("INSERT INTO detallefactura (id_productos, cantidad, precio, subtotal) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("iidd", $_POST['id_productos'], $_POST['cantidad'], $_POST['precio'], $subtotal);
+$stmt->execute();
+$id_detalle = $conn->insert_id;
+$stmt->close();
 
-$conn->query("INSERT INTO detallefactura 
-(id_facturas, id_productos, cantidad, precio)
-VALUES ($id, $_POST[id_productos], $_POST[cantidad], $_POST[precio])");
+// 2️⃣ Insertar factura con el id_detalle recién creado
+$stmt = $conn->prepare("INSERT INTO facturas (id_clientes, id_detallefactura, estado, fecha) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("iiss", $_POST['id_clientes'], $id_detalle, $_POST['estado'], $_POST['fecha']);
+$stmt->execute();
+$id_factura = $conn->insert_id;
+$stmt->close();
 
-header("Location: index.php");
+// 3️⃣ Actualizar el detalle con el id_facturas
+$stmt = $conn->prepare("UPDATE detallefactura SET id_facturas = ? WHERE id_detallefactura = ?");
+$stmt->bind_param("ii", $id_factura, $id_detalle);
+$stmt->execute();
+$stmt->close();
+
+header("Location: facturas.php");
+exit;
+?>

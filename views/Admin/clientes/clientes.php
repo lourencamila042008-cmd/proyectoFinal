@@ -139,15 +139,11 @@ td{
 
 <td class="acciones">
 
-<a class="btn-editar"
-href="editar_cliente.php">
-Editar
-</a>
+<a class= "btn-editar" href="editar_cliente.php?id=<?= $c['id_clientes'] ?>">Editar</a>
 
-<a class="btn-eliminar"
-href="eliminar_cliente.php?id=<?= $c['id_clientes'] ?>"
-onclick="return confirm('¿Eliminar?')">
-Eliminar
+<a class="btn-eliminar" href="eliminar_cliente.php?id=<?= $c['id_clientes'] ?>" 
+   onclick="return confirm('¿Seguro que deseas eliminar este cliente?')">
+   Eliminar
 </a>
 
 </td>

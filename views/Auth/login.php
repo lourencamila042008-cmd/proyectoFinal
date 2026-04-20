@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// 🔥 LIMPIAR SESIÓN SI VIENE DEL INDEX
 if (isset($_SESSION["id_usuario"])) {
     session_unset();
     session_destroy();
@@ -10,73 +9,82 @@ if (isset($_SESSION["id_usuario"])) {
 
 require_once __DIR__ . "/../../config/db.php";
 
+$error = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $usuario = $_POST["usuario"];
-    $clave   = $_POST["clave"];
+    // 1️⃣ VALIDAR QUE NO VENGAN VACÍOS
+    $usuario = trim($_POST["usuario"] ?? "");
+    $clave   = trim($_POST["clave"] ?? "");
 
-    $conn = Database::Conectar();
+    if (empty($usuario) || empty($clave)) {
+        $error = "Por favor completa todos los campos.";
 
-    // 🔐 BUSCAR USUARIO
-    $stmt = $conn->prepare("
-        SELECT * FROM usuario
-        WHERE correo = ? OR nombre_usuario = ?
-        LIMIT 1
-    ");
+    } elseif (strlen($usuario) > 100 || strlen($clave) > 255) {
+        // 2️⃣ VALIDAR LONGITUD MÁXIMA
+        $error = "Los datos ingresados no son válidos.";
 
-    $stmt->bind_param("ss", $usuario, $usuario);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    } else {
 
-    if ($result->num_rows > 0) {
+        $conn = Database::Conectar();
 
-        $user = $result->fetch_assoc();
+        $stmt = $conn->prepare("
+            SELECT * FROM usuario
+            WHERE correo = ? OR nombre_usuario = ?
+            LIMIT 1
+        ");
+        $stmt->bind_param("ss", $usuario, $usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        // 🔑 VERIFICAR CONTRASEÑA ENCRIPTADA
-        if (password_verify($clave, $user["contraseña"])) {
+        if ($result->num_rows > 0) {
 
-            $_SESSION["id_usuario"] = $user["id_usuario"];
-            $_SESSION["usuario"]    = $user["nombre_usuario"];
+            $user = $result->fetch_assoc();
 
-            // 🔎 OBTENER ROL
-            $stmtRol = $conn->prepare("
-                SELECT r.tipo
-                FROM rol_user ru
-                INNER JOIN rol r ON ru.id_rol = r.id_rol
-                WHERE ru.id_usuario = ?
-                LIMIT 1
-            ");
+            // 3️⃣ VERIFICAR CONTRASEÑA
+            if (password_verify($clave, $user["contrasena"])) {
 
-            $stmtRol->bind_param("i", $user["id_usuario"]);
-            $stmtRol->execute();
-            $resRol = $stmtRol->get_result();
+                $_SESSION["id_usuario"] = $user["id_usuario"];
+                $_SESSION["usuario"]    = $user["nombre_usuario"];
 
-            if ($resRol->num_rows > 0) {
+                $stmtRol = $conn->prepare("
+                    SELECT r.tipo
+                    FROM rol_user ru
+                    INNER JOIN rol r ON ru.id_rol = r.id_rol
+                    WHERE ru.id_usuario = ?
+                    LIMIT 1
+                ");
+                $stmtRol->bind_param("i", $user["id_usuario"]);
+                $stmtRol->execute();
+                $resRol = $stmtRol->get_result();
 
-                $rol = $resRol->fetch_assoc();
-                $_SESSION["rol"] = $rol["tipo"];
+                if ($resRol->num_rows > 0) {
+                    $rol = $resRol->fetch_assoc();
+                    $_SESSION["rol"] = $rol["tipo"];
 
-                // 🚀 REDIRECCIÓN POR ROL
-                if ($rol["tipo"] == "admin") {
-                    header("Location: ../Admin/dashboard_admin.php");
+                    if ($rol["tipo"] == "admin") {
+                        header("Location: ../Admin/dashboard_admin.php");
+                    } else {
+                        header("Location: ../Empleado/dashboard_empleado.php");
+                    }
+                    exit();
+
                 } else {
-                    header("Location: ../Empleado/dashboard_empleado.php");
+                    $error = "El usuario no tiene rol asignado. Contacta al administrador.";
                 }
-                exit();
 
             } else {
-                $error = "El usuario no tiene rol asignado";
+                // 4️⃣ MENSAJE GENÉRICO — no revela si fue usuario o clave lo incorrecto
+                $error = "Credenciales incorrectas. Verifica tus datos.";
             }
 
         } else {
-            $error = "Contraseña incorrecta";
+            $error = "Credenciales incorrectas. Verifica tus datos.";
         }
-
-    } else {
-        $error = "Usuario no encontrado";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -88,21 +96,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
 <div class="login-box">
-<div class="logo">INVOICEPRO</div>
-<h2>Iniciar Sesión</h2>
+    <div class="logo">INVOICEPRO</div>
+    <h2>Iniciar Sesión</h2>
 
-<?php if(isset($error)) echo "<p style='color:red'>$error</p>"; ?>
+    <?php if ($error != ""): ?>
+        <p style="color:red; text-align:center; font-size:14px; margin-bottom:10px;">
+            ⚠️ <?= htmlspecialchars($error) ?>
+        </p>
+    <?php endif; ?>
 
-<form method="POST">
-<input class="input" type="text" name="usuario" placeholder="Usuario o correo" required>
-<input class="input" type="password" name="clave" placeholder="Contraseña" required>
+    <form method="POST">
+        <input class="input" type="text" name="usuario"
+               placeholder="Usuario o correo"
+               value="<?= htmlspecialchars($_POST['usuario'] ?? '') ?>"
+               maxlength="100" required>
 
-<button type="submit" class="login-btn">Entrar</button>
-</form>
+        <input class="input" type="password" name="clave"
+               placeholder="Contraseña"
+               maxlength="255" required>
 
-<a href="register.php" class="link">Registrarse</a>
-<a href="../../index.php" class="link">Volver al inicio</a>
+        <button type="submit" class="login-btn">Entrar</button>
+    </form>
 
+    <a href="register.php" class="link">Registrarse</a>
+    <a href="../../index.php" class="link">Volver al inicio</a>
 </div>
 
 </body>
