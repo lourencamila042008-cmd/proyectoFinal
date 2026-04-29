@@ -4,57 +4,130 @@ $conn = Database::Conectar();
 
 $errores = [];
 
-// Procesar formulario
+// PROCESAR FORMULARIO
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $subtotal = $_POST['cantidad'] * $_POST['precio'];
 
+    // 🔥 RECIBIR DATOS
+    $id_cliente  = intval($_POST['id_clientes']);
+    $id_producto = intval($_POST['id_productos']);
+
+    $cantidad = intval($_POST['cantidad']);
+    $precio   = floatval($_POST['precio']);
+
+    $estado = trim($_POST['estado']);
+    $fecha  = $_POST['fecha'];
+
+    $subtotal = $cantidad * $precio;
+
+    // =========================
     // VALIDACIONES
+    // =========================
 
-    // SI TODO OK
+    if ($id_cliente <= 0) {
+        $errores[] = "Cliente inválido";
+    }
+
+    if ($id_producto <= 0) {
+        $errores[] = "Producto inválido";
+    }
+
+    if ($cantidad <= 0) {
+        $errores[] = "Cantidad inválida";
+    }
+
+    if ($precio <= 0) {
+        $errores[] = "Precio inválido";
+    }
+
+    if (empty($fecha)) {
+        $errores[] = "La fecha es obligatoria";
+    }
+
+    // =========================
+    // SI TODO ESTÁ BIEN
+    // =========================
+
     if (empty($errores)) {
-
-        $subtotal = $cantidad * $precio;
 
         // 🔥 INICIAR TRANSACCIÓN
         $conn->begin_transaction();
 
         try {
 
-            // 1️⃣ Insertar detalle
-            $stmt = $conn->prepare("INSERT INTO detallefactura 
-            (id_productos, cantidad, precio, subtotal) 
-            VALUES (?, ?, ?, ?)");
+            // 1️⃣ INSERTAR DETALLE
+            $stmt = $conn->prepare("
+                INSERT INTO detallefactura
+                (id_productos, cantidad, precio, subtotal)
+                VALUES (?, ?, ?, ?)
+            ");
 
-            $stmt->bind_param("iidd", $id_producto, $cantidad, $precio, $subtotal);
+            $stmt->bind_param(
+                "iidd",
+                $id_producto,
+                $cantidad,
+                $precio,
+                $subtotal
+            );
+
             $stmt->execute();
+
             $id_detalle = $conn->insert_id;
+
             $stmt->close();
 
-            // 2️⃣ Insertar factura
-            $stmt = $conn->prepare("INSERT INTO facturas 
-            (id_clientes, id_detallefactura, estado, fecha) 
-            VALUES (?, ?, ?, ?)");
+            // 2️⃣ INSERTAR FACTURA
+            $stmt = $conn->prepare("
+                INSERT INTO facturas
+                (id_clientes, id_detallefactura, estado, fecha)
+                VALUES (?, ?, ?, ?)
+            ");
 
-            $stmt->bind_param("iiss", $id_cliente, $id_detalle, $estado, $fecha);
+            $stmt->bind_param(
+                "iiss",
+                $id_cliente,
+                $id_detalle,
+                $estado,
+                $fecha
+            );
+
             $stmt->execute();
+
             $id_factura = $conn->insert_id;
+
             $stmt->close();
 
-            // 3️⃣ Actualizar detalle
-            $stmt = $conn->prepare("UPDATE detallefactura 
-            SET id_facturas = ? 
-            WHERE id_detallefactura = ?");
+            // 3️⃣ ACTUALIZAR DETALLE
+            $stmt = $conn->prepare("
+                UPDATE detallefactura
+                SET id_facturas = ?
+                WHERE id_detallefactura = ?
+            ");
 
-            $stmt->bind_param("ii", $id_factura, $id_detalle);
+            $stmt->bind_param(
+                "ii",
+                $id_factura,
+                $id_detalle
+            );
+
             $stmt->execute();
+
             $stmt->close();
 
-            // 4️⃣ (OPCIONAL PERO RECOMENDADO) RESTAR STOCK
-            $stmt = $conn->prepare("UPDATE productos 
-            SET stock = stock - ? 
-            WHERE id_productos = ? AND stock >= ?");
+            // 4️⃣ RESTAR STOCK
+            $stmt = $conn->prepare("
+                UPDATE productos
+                SET stock = stock - ?
+                WHERE id_productos = ?
+                AND stock >= ?
+            ");
 
-            $stmt->bind_param("iii", $cantidad, $id_producto, $cantidad);
+            $stmt->bind_param(
+                "iii",
+                $cantidad,
+                $id_producto,
+                $cantidad
+            );
+
             $stmt->execute();
 
             if ($stmt->affected_rows == 0) {
@@ -63,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $stmt->close();
 
-            // ✅ CONFIRMAR TODO
+            // ✅ CONFIRMAR
             $conn->commit();
 
             header("Location: facturas.php");
@@ -71,8 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         } catch (Exception $e) {
 
-            // ❌ SI ALGO FALLA → REVERSA TODO
+            // ❌ REVERSA TODO
             $conn->rollback();
+
             $errores[] = $e->getMessage();
         }
     }
