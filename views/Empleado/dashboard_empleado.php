@@ -22,10 +22,10 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "empleado") {
 <div class="sidebar">
     <h2>Empleado</h2>
 
-    <a href="../facturas/facturas.php">📄 Facturas</a>
-    <a href="../productos/inventario.php">📦 Inventario</a>
-    <a href="../garantias/iniciogarantias.php">🛠 Garantías</a>
-    <a href="../clientes/clientes.php">👤 Clientes</a>
+    <a href="facturas/facturas.php">📄 Facturas</a>
+    <a href="productos/inventario.php">📦 Inventario</a>
+    <a href="garantias/iniciogarantias.php">🛠 Garantías</a>
+    <a href="clientes/clientes.php">👤 Clientes</a>
 </div>
 
 <!-- CONTENIDO -->

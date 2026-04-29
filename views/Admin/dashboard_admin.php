@@ -20,18 +20,12 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
 <body>
 
 <div class="sidebar">
+    <h2>admin</h2>
 
-    <h2>InvoicePro</h2>
-
-    <ul>
-       <li >📦 Inventario</li>
-        <li>🧾 Facturación</li>
-        <li>💰 Ingresos</li>
-        <li>👥 Usuarios</li>
-    </ul>
-
-    <a href="../Auth/logout.php" class="logout">Cerrar sesión</a>
-
+    <a href="facturas/facturas.php">📄 Facturas</a>
+    <a href="productos/inventario.php">📦 Inventario</a>
+    <a href="garantias/iniciogarantias.php">🛠 Garantías</a>
+    <a href="clientes/clientes.php">👤 Clientes</a>
 </div>
 
 <div class="main">
@@ -56,7 +50,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
         <div class="card">
             <h3>Ingresos</h3>
             <p>Visualiza ganancias</p>
-            <button>Ver reportes</button>
+            <button onclick="location.href='ingresos/ingresos.php'">Ver reportes</button>
         </div>
 
         <div class="card">
@@ -76,6 +70,19 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
             <p>Gestiona de clientes</p>
             <button onclick="location.href='clientes/clientes.php'">Administrar clientes</button>
         </div>
+
+             <div class="card">
+            <h3>proveedores</h3>
+            <p>Gestiona de proveedores</p>
+            <button onclick="location.href='proveedores/proveedores.php'">Administrar proveedores</button>
+        </div>
+
+          <div class="card">
+            <h3>compras</h3>
+            <p>Gestiona de compras</p>
+            <button onclick="location.href='compra/compras.php'">Administrar compras</button>
+        </div>
+
 
 
 

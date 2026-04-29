@@ -118,6 +118,8 @@ tr:nth-child(even) {
 
 <body>
 
+
+
 <div class="topbar">
     <h1>Facturas</h1>
     <a class="btn" href="crear_factura.php">+ Nueva Factura</a>

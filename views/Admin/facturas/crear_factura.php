@@ -10,37 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // VALIDACIONES
 
-    // Cliente
-    if ($id_cliente <= 0) {
-        $errores[] = "Cliente inválido";
-    }
-
-    // Producto
-    if ($id_producto <= 0) {
-        $errores[] = "Producto inválido";
-    }
-
-    // Cantidad
-    if (!is_numeric($cantidad) || $cantidad <= 0) {
-        $errores[] = "La cantidad debe ser mayor a 0";
-    }
-
-    // Precio
-    if (!is_numeric($precio) || $precio < 0) {
-        $errores[] = "El precio no puede ser negativo";
-    }
-
-    // Estado
-    $estados_validos = ["pagada", "pendiente", "anulada"];
-    if (!in_array($estado, $estados_validos)) {
-        $errores[] = "Estado no válido";
-    }
-
-    // Fecha
-    if (empty($fecha)) {
-        $errores[] = "La fecha es obligatoria";
-    }
-
     // SI TODO OK
     if (empty($errores)) {
 
