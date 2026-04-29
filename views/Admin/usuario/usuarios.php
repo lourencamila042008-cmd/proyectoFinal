@@ -27,7 +27,6 @@ $resultado = $conn->query("SELECT * FROM usuario ORDER BY id_usuario DESC");
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Negocio</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Teléfono</th>
@@ -40,7 +39,6 @@ $resultado = $conn->query("SELECT * FROM usuario ORDER BY id_usuario DESC");
             <?php while($fila = $resultado->fetch_assoc()): ?>
             <tr>
                 <td><?= $fila['id_usuario'] ?></td>
-                <td><?= htmlspecialchars($fila['nombre_negocio']) ?></td>
                 <td><?= htmlspecialchars($fila['nombre_usuario']) ?></td>
                 <td><?= htmlspecialchars($fila['apellido_usuario']) ?></td>
                 <td><?= $fila['telefono'] ?></td>

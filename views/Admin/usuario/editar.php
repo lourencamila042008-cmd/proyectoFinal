@@ -24,23 +24,22 @@ if (!$usuario) {
 
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nombre_negocio   = trim($_POST['nombre_negocio']);
     $nombre_usuario   = trim($_POST['nombre_usuario']);
     $apellido_usuario = trim($_POST['apellido_usuario']);
     $telefono         = intval($_POST['telefono']);
     $correo           = trim($_POST['correo']);
 
-    if (empty($nombre_negocio) || empty($nombre_usuario) || empty($apellido_usuario)) {
-        $mensaje = "Negocio, nombre y apellido son obligatorios.";
+    if (empty($nombre_usuario) || empty($apellido_usuario)) {
+        $mensaje = "Nombre y apellido son obligatorios.";
     } else {
         // Si ingresó nueva contraseña la actualizamos, si no la dejamos igual
         if (!empty($_POST['contrasena'])) {
             $contrasena = password_hash($_POST['contrasena'], PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE usuario SET nombre_negocio=?, nombre_usuario=?, apellido_usuario=?, telefono=?, correo=?, contrasena=? WHERE id_usuario=?");
-            $stmt->bind_param("sssissi", $nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $contrasena, $id);
+            $stmt = $conn->prepare("UPDATE usuario SET nombre_usuario=?, apellido_usuario=?, telefono=?, correo=?, contrasena=? WHERE id_usuario=?");
+            $stmt->bind_param("sssissi", $nombre_usuario, $apellido_usuario, $telefono, $correo, $contrasena, $id);
         } else {
-            $stmt = $conn->prepare("UPDATE usuario SET nombre_negocio=?, nombre_usuario=?, apellido_usuario=?, telefono=?, correo=? WHERE id_usuario=?");
-            $stmt->bind_param("sssisi", $nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $id);
+            $stmt = $conn->prepare("UPDATE usuario SET nombre_usuario=?, apellido_usuario=?, telefono=?, correo=? WHERE id_usuario=?");
+            $stmt->bind_param("sssisi", $nombre_usuario, $apellido_usuario, $telefono, $correo, $id);
         }
 
         if ($stmt->execute()) {
@@ -74,12 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php if ($mensaje != ""): ?>
             <div class="mensaje"><?= htmlspecialchars($mensaje) ?></div>
         <?php endif; ?>
-
-        <div class="campo">
-            <label>Negocio</label>
-            <input type="text" name="nombre_negocio"
-                   value="<?= htmlspecialchars($usuario['nombre_negocio']) ?>" required>
-        </div>
 
         <div class="campo">
             <label>Nombre</label>

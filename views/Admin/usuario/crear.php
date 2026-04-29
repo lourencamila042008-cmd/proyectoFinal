@@ -6,22 +6,21 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $mensaje = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nombre_negocio   = trim($_POST['nombre_negocio']);
     $nombre_usuario   = trim($_POST['nombre_usuario']);
     $apellido_usuario = trim($_POST['apellido_usuario']);
     $telefono         = trim($_POST['telefono']);
     $correo           = trim($_POST['correo']);
     $contrasena       = password_hash($_POST['contrasena'], PASSWORD_DEFAULT);
 
-    if (empty($nombre_negocio) || empty($nombre_usuario) || empty($apellido_usuario)) {
-        $mensaje = "Negocio, nombre y apellido son obligatorios.";
+    if (empty($nombre_usuario) || empty($apellido_usuario)) {
+        $mensaje = "Nombre y apellido son obligatorios.";
     } else {
         $telefono = intval($_POST['telefono']);
 
 $stmt = $conn->prepare("INSERT INTO usuario 
-    (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, contrasena) 
-    VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sssiss", $nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono, $correo, $contrasena);
+    (nombre_usuario, apellido_usuario, telefono, correo, contrasena) 
+    VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("ssiss", $nombre_usuario, $apellido_usuario, $telefono, $correo, $contrasena);
 try {
     $stmt->execute();
     $stmt->close();
@@ -54,11 +53,6 @@ try {
         <?php if ($mensaje != ""): ?>
             <div class="mensaje"><?= htmlspecialchars($mensaje) ?></div>
         <?php endif; ?>
-
-        <div class="campo">
-            <label>Negocio</label>
-            <input type="text" name="nombre_negocio" placeholder="Nombre del negocio" required>
-        </div>
 
         <div class="campo">
             <label>Nombre</label>
