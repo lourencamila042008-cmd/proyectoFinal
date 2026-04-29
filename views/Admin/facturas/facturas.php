@@ -30,6 +30,7 @@ $result = $conn->query($sql);
     <div class="topbar">
         <h1>Facturas</h1>
         <a class="btn" href="crear_factura.php">+ Nueva Factura</a>
+        <a class="btn" href="../dashboard_admin.php">volver al inicio</a>
     </div>
 
     <table>

@@ -19,6 +19,7 @@ $clientes = $conn->query("SELECT * FROM clientes ORDER BY id_clientes DESC");
 <div class="topbar">
     <h1>Clientes</h1>
     <a class="btn" href="crear_cliente.php">+ Nuevo Cliente</a>
+    <a class="btn" href="../dashboard_admin.php">volver al inicio</a>
 </div>
 
 <table>

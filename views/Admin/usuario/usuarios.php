@@ -20,6 +20,7 @@ $resultado = $conn->query("SELECT * FROM usuario ORDER BY id_usuario DESC");
     <div class="top">
         <h1>Usuarios</h1>
         <a href="crear.php" class="crear">+ Nuevo</a>
+        <a class="crear" href="../dashboard_admin.php">volver al inicio</a>
     </div>
 
     <table>

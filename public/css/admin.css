@@ -4,33 +4,71 @@ body {
     background: #f4f6f9;
 }
 
-/* 🔥 SIDEBAR */
-.sidebar {
-    width: 240px;
-    background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(12px);
-    color: white;
-    padding: 20px;
+/* BOTON LOGOUT */
+.logout-btn{
+    margin-top:30px;
+    background:#dc2626;
+    text-align:center;
+    padding:14px;
+    border-radius:14px;
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+    transition:0.3s;
 }
 
-.sidebar h2 {
-    margin-bottom: 30px;
+.logout-btn:hover{
+    background:#b91c1c;
 }
 
-.sidebar a {
-    display: block;
-    color: white;
-    text-decoration: none;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    transition: 0.3s;
+/* MAIN */
+.main-content{
+    flex:1;
+    padding:50px;
+    background:
+    radial-gradient(circle at top right,#2563eb22,transparent 300px),
+    radial-gradient(circle at bottom left,#38bdf822,transparent 300px),
+    #fafafc;
 }
 
-.sidebar a:hover {
-    background: rgba(255,255,255,0.2);
+.welcome-card{
+    background:#eff1f4;
+    padding:40px;
+    border-radius:25px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+    border:1px solid rgba(255,255,255,0.05);
 }
 
+.welcome-card h1{
+    font-size:40px;
+    margin-bottom:15px;
+    color:#60a5fa;
+}
+
+.welcome-card p{
+    font-size:16px;
+    color:#cbd5e1;
+    line-height:1.7;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+
+    body{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        border-right:none;
+        border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+
+    .main-content{
+        padding:25px;
+    }
+
+}
 
 .logout {
     display: block;
@@ -92,41 +130,4 @@ color:white;
 padding:10px;
 margin:5px;
 border-radius:5px;
-}
-/* ========================= */
-/* GARANTIAS */
-/* ========================= */
-
-.estado {
-    padding:6px 12px;
-    border-radius:20px;
-    font-size:13px;
-    font-weight:600;
-}
-
-.estado-activa{
-    background:#d1fae5;
-    color:#065f46;
-}
-
-.estado-vencida{
-    background:#fee2e2;
-    color:#991b1b;
-}
-
-.estado-proceso{
-    background:#fef3c7;
-    color:#92400e;
-}
-
-.btn-ver{
-    background:#10b981;
-    color:white;
-    padding:6px 12px;
-    border-radius:6px;
-    text-decoration:none;
-}
-
-.btn-ver:hover{
-    background:#059669;
 }

@@ -137,6 +137,7 @@ tr:hover{
     <a href="crear_compra.php" class="btn">
         + Nueva Compra
     </a>
+    <a class="btn" href="../dashboard_admin.php">volver al inicio</a>
 </div>
 
 <table>

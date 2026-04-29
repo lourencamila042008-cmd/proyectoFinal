@@ -61,6 +61,7 @@ th,td{padding:10px;text-align:center;}
 <div class="top">
 <h1>Proveedores</h1>
 <a href="crear_proveedor.php" class="btn">+ Nuevo</a>
+<a class="btn" href="../dashboard_admin.php">volver al inicio</a>
 </div>
 
 <table>

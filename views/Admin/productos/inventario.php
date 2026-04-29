@@ -30,6 +30,9 @@ $result = $conn->query($sql);
 
     <input type="text" id="buscar" placeholder="Buscar producto...">
 
+      <button onclick="location.href='../dashboard_admin.php'">
+        volver al inicio
+    </button>
     <button onclick="location.href='agregar_producto.php'">
         ➕ Agregar producto
     </button>

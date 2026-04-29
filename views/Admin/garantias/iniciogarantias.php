@@ -26,6 +26,7 @@ $garantias = $conn->query("
     <div class="topbar">
         <h1>Garantías</h1>
         <a class="btn" href="crear_garantia.php">+ Nueva garantía</a>
+        <a class="btn" href="../dashboard_admin.php">volver al inicio</a>
     </div>
 
     <?php if(isset($_GET['msg']) && $_GET['msg'] == "creado"){ ?>
