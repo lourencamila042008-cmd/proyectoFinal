@@ -122,8 +122,10 @@ tr:nth-child(even) {
 
 <div class="topbar">
     <h1>Facturas</h1>
+    <a class="btn" href="../dashboard_empleado.php">volver al inicio</a>
     <a class="btn" href="crear_factura.php">+ Nueva Factura</a>
 </div>
+
 
 <div class="container">
 

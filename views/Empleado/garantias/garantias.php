@@ -168,6 +168,7 @@ tr.vencida {
 
 <div class="topbar">
     <h1>Garantías</h1>
+    <a class="btn" href="../dashboard_empleado.php">volver al inicio</a>
     <a class="btn" href="crear_garantia.php">+ Nueva garantía</a>
 </div>
 

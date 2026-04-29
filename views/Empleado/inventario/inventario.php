@@ -111,6 +111,13 @@ tr:hover {
 .bajo:hover {
     background: #ffe69c !important;
 }
+.btn {
+    background: white;
+    color: navy;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+}
 </style>
 
 </head>
@@ -119,7 +126,7 @@ tr:hover {
 
 <div class="top-bar">
     <h1>Inventario</h1>
-
+<a class="btn" href="../dashboard_empleado.php">volver al inicio</a>
     <input type="text" id="buscar" placeholder="Buscar producto...">
 
     <!-- SOLO ADMIN -->

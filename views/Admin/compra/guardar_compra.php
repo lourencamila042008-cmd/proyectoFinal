@@ -1,48 +1,72 @@
 <?php
 require_once "../../../config/db.php";
-$conn = Database::conectar();
 
-$id_proveedor = $_POST['id_proveedor'];
-$id_producto = $_POST['id_producto'];
-$cantidad = $_POST['cantidad'];
-$precio = $_POST['precio'];
+$conn = Database::Conectar();
 
-$errores = [];
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-if(empty($id_proveedor)) $errores[]="Proveedor obligatorio";
-if(empty($id_producto)) $errores[]="Producto obligatorio";
-if($cantidad <= 0) $errores[]="Cantidad inválida";
-if($precio <= 0) $errores[]="Precio inválido";
-?>
+    $id_proveedor = intval($_POST['id_proveedor']);
+    $id_producto  = intval($_POST['id_producto']);
 
-<style>
-body{font-family:Arial;background:#f4f6f9;text-align:center;padding:50px;}
-.error{color:red;}
-.success{color:green;}
-a{display:block;margin-top:15px;}
-</style>
+    $cantidad = intval($_POST['cantidad']);
+    $precio   = floatval($_POST['precio']);
 
-<?php
+    $total = $cantidad * $precio;
 
-if($errores){
-    foreach($errores as $e){
-        echo "<p class='error'>$e</p>";
+    $fecha = date("Y-m-d");
+
+    // 🔥 TRANSACCIÓN
+    $conn->begin_transaction();
+
+    try{
+
+        // 1️⃣ GUARDAR COMPRA
+        $stmt = $conn->prepare("
+        INSERT INTO compras
+        (id_proveedor, precio_total, fecha)
+        VALUES (?, ?, ?)
+        ");
+
+        $stmt->bind_param(
+            "ids",
+            $id_proveedor,
+            $total,
+            $fecha
+        );
+
+        $stmt->execute();
+
+        $id_compra = $conn->insert_id;
+
+        $stmt->close();
+
+        // 2️⃣ SUMAR STOCK
+        $stmt = $conn->prepare("
+        UPDATE productos
+        SET stock = stock + ?
+        WHERE id_productos = ?
+        ");
+
+        $stmt->bind_param(
+            "ii",
+            $cantidad,
+            $id_producto
+        );
+
+        $stmt->execute();
+
+        $stmt->close();
+
+        // ✅ CONFIRMAR
+        $conn->commit();
+
+        header("Location: compras.php");
+
+    } catch(Exception $e){
+
+        $conn->rollback();
+
+        echo "Error: " . $e->getMessage();
     }
-    echo "<a href='crear_compra.php'>Volver</a>";
-    exit;
 }
-
-$total = $cantidad * $precio;
-
-$conn->query("INSERT INTO compras(id_proveedor,precio_total,fecha)
-VALUES('$id_proveedor','$total',NOW())");
-
-$id_compra = $conn->insert_id;
-
-$conn->query("INSERT INTO detalle_compra(id_compra,id_producto,cantidad,precio_compra)
-VALUES('$id_compra','$id_producto','$cantidad','$precio')");
-
-$conn->query("UPDATE productos SET stock = stock + $cantidad WHERE id_producto = $id_producto");
-
-echo "<p class='success'>Compra registrada correctamente</p>";
-echo "<a href='crear_compra.php'>Volver</a>";
+?>

@@ -25,7 +25,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "empleado") {
     <a href="facturas/facturas.php">📄 Facturas</a>
     <a href="productos/inventario.php">📦 Inventario</a>
     <a href="garantias/iniciogarantias.php">🛠 Garantías</a>
-    <a href="clientes/clientes.php">👤 Clientes</a>
+    <a href="clientes/clientesinicio.php">👤 Clientes</a>
 </div>
 
 <!-- CONTENIDO -->
@@ -56,7 +56,7 @@ if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "empleado") {
             <small>Seguimiento</small>
         </a>
 
-        <a href="../clientes/clientes.php" class="card">
+        <a href="clientes/clientesinicio.php" class="card">
             <div class="icon">👤</div>
             Clientes
             <small>Base de datos</small>
