@@ -67,6 +67,95 @@ $productos = $conn->query("SELECT * FROM productos");
 
     <h1>Editar Factura #<?= $id ?></h1>
 
+    <style>
+        body{
+    background:#f4f6f9;
+    font-family:'Inter', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:650px;
+    background:white;
+    padding:40px;
+    border-radius:28px;
+    box-shadow:0 4px 18px rgba(0,0,0,.05);
+    border:1px solid #e2e8f0;
+}
+
+h1{
+    font-size:32px;
+    color:#0f172a;
+    margin-bottom:30px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    margin-top:18px;
+    color:#334155;
+    font-weight:500;
+}
+
+input, select{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    background:#f8fafc;
+    outline:none;
+    transition:.3s;
+}
+
+input:focus,
+select:focus{
+    border-color:#17345f;
+    background:white;
+}
+
+button{
+    width:100%;
+    margin-top:30px;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:#17345f;
+    color:white;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#264c83;
+}
+
+.volver{
+    display:inline-block;
+    margin-top:20px;
+    text-decoration:none;
+    color:#64748b;
+    font-weight:500;
+}
+
+hr{
+    margin:30px 0;
+    border:none;
+    border-top:1px solid #e2e8f0;
+}
+
+h3{
+    color:#17345f;
+}
+
+    </style>
+
     <form method="POST" action="editar_factura.php?id=<?= $id ?>">
 
         <label>Estado</label>

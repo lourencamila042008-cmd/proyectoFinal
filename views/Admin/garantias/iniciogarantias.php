@@ -19,7 +19,141 @@ $garantias = $conn->query("
 <link rel="stylesheet" href="../../../public/css/garantias/garantias.css">
 
 </head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#f4f7fb;
+    color:#1e293b;
+    padding:30px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.topbar h1{
+    font-size:32px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.btn{
+    background:#1e3a5f;
+    color:white;
+    text-decoration:none;
+    padding:12px 18px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn:hover{
+    background:#16304d;
+    transform:translateY(-2px);
+}
+
+.alert{
+    padding:14px 18px;
+    border-radius:12px;
+    margin-bottom:20px;
+    font-size:14px;
+    font-weight:500;
+}
+
+.success{
+    background:#dcfce7;
+    color:#166534;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 4px 20px rgba(15,23,42,.06);
+}
+
+thead{
+    background:#f8fafc;
+}
+
+th{
+    padding:18px;
+    text-align:left;
+    font-size:13px;
+    color:#64748b;
+    text-transform:uppercase;
+    font-weight:600;
+}
+
+td{
+    padding:18px;
+    border-top:1px solid #e2e8f0;
+    font-size:14px;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+.estado{
+    padding:8px 14px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.estado-pendiente{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.estado-revision{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.estado-resuelto{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.btn-ver{
+    text-decoration:none;
+    background:#e0edff;
+    color:#2563eb;
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn-ver:hover{
+    background:#2563eb;
+    color:white;
+}
+</style>
 <body>
 <div class="container">
 

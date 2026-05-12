@@ -40,10 +40,109 @@ try {
 <meta charset="UTF-8">
 <title>Crear Usuario</title>
 <link rel="stylesheet" href="../../../public/css/usuarios/crear.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
 
 <body>
+    <style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter', sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.contenedor{
+    width:100%;
+    max-width:550px;
+    background:white;
+    border-radius:28px;
+    padding:40px;
+    border:1px solid #e2e8f0;
+    box-shadow:0 4px 18px rgba(0,0,0,.05);
+}
+
+h1{
+    font-size:32px;
+    margin-bottom:30px;
+    color:#0f172a;
+}
+
+.mensaje{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:14px;
+    border-radius:14px;
+    margin-bottom:20px;
+    font-size:14px;
+}
+
+.campo{
+    margin-bottom:20px;
+}
+
+.campo label{
+    display:block;
+    margin-bottom:8px;
+    color:#334155;
+    font-weight:500;
+}
+
+.campo input{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    outline:none;
+    background:#f8fafc;
+    transition:.3s;
+}
+
+.campo input:focus{
+    border-color:#17345f;
+    background:white;
+}
+
+button{
+    width:100%;
+    margin-top:10px;
+    border:none;
+    background:#17345f;
+    color:white;
+    padding:15px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#264c83;
+}
+
+.volver{
+    display:inline-block;
+    margin-top:20px;
+    text-decoration:none;
+    color:#64748b;
+    font-weight:500;
+}
+
+</style>
+    </style>
 <div class="contenedor">
 
     <h1>Crear Usuario</h1>

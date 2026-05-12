@@ -4,21 +4,6 @@ $conn = Database::conectar();
 
 $proveedores = $conn->query("SELECT * FROM proveedores");
 $productos = $conn->query("SELECT * FROM productos");
-
-$stmt = $conn->prepare("
-UPDATE productos 
-SET stock = stock + ? 
-WHERE id_productos = ?
-");
-
-$stmt->bind_param(
-    "ii",
-    $cantidad,
-    $id_producto
-);
-
-$stmt->execute();
-$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -28,94 +13,91 @@ $stmt->close();
 <meta charset="UTF-8">
 <title>Nueva Compra</title>
 
+<link rel="stylesheet" href="../../../public/css/compras/crear_compra.css">
+
+</head>
+
+<body>
 <style>
+    *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
 body{
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#0f4c81,#2f7bbd,#3fa9f5);
+    font-family:'Segoe UI', sans-serif;
+    background:#f4f7fb;
     padding:40px;
 }
 
-/* CONTENEDOR */
 .container{
     background:white;
-    padding:35px;
-    border-radius:18px;
     max-width:600px;
     margin:auto;
-    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.05);
 }
 
-/* TITULO */
 h1{
     text-align:center;
-    color:#0f4c81;
     margin-bottom:25px;
+    color:#0f172a;
 }
 
-/* FORMULARIO */
 form{
     display:flex;
     flex-direction:column;
-    gap:15px;
+    gap:16px;
 }
 
-/* INPUTS */
-input, select{
+input,
+select{
     padding:14px;
+    border:1px solid #dbe2ea;
     border-radius:10px;
-    border:1px solid #ccc;
-    font-size:15px;
-    transition:0.3s;
+    font-size:14px;
+    transition:.3s;
 }
 
 input:focus,
 select:focus{
     outline:none;
     border-color:#2563eb;
-    box-shadow:0 0 8px rgba(37,99,235,0.3);
+    box-shadow:0 0 0 4px rgba(37,99,235,0.1);
 }
 
-/* BOTÓN */
 button{
-    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    background:#2563eb;
     color:white;
-    padding:14px;
     border:none;
+    padding:14px;
     border-radius:10px;
     cursor:pointer;
     font-size:15px;
-    font-weight:bold;
-    transition:0.3s;
+    font-weight:600;
+    transition:.3s;
 }
 
 button:hover{
-    transform:translateY(-2px);
-    box-shadow:0 10px 20px rgba(37,99,235,0.3);
+    background:#1d4ed8;
 }
 
-/* VOLVER */
 .volver{
     display:inline-block;
-    margin-top:15px;
-    color:#0f4c81;
+    margin-top:18px;
     text-decoration:none;
-    font-weight:bold;
+    color:#2563eb;
+    font-weight:600;
 }
-
 </style>
-
-</head>
-
-<body>
-
 <div class="container">
 
 <h1>Nueva Compra</h1>
 
 <form method="POST" action="guardar_compra.php">
 
-<!-- PROVEEDOR -->
 <select name="id_proveedor" required>
 
 <option value="">
@@ -134,7 +116,6 @@ Seleccionar proveedor
 
 </select>
 
-<!-- PRODUCTO -->
 <select name="id_producto" required>
 
 <option value="">
@@ -153,7 +134,6 @@ Seleccionar producto
 
 </select>
 
-<!-- CANTIDAD -->
 <input
 type="number"
 name="cantidad"
@@ -162,7 +142,6 @@ min="1"
 required
 >
 
-<!-- PRECIO -->
 <input
 type="number"
 name="precio"

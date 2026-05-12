@@ -34,7 +34,7 @@ class AuthController{
 
                 // 🔥 REDIRECCIÓN POR ROL
                 if($_SESSION['rol'] == 'admin'){
-                    header("Location: index.php?controller=admin&action=index");
+                    header("Location: index.php?controller=usuario&action=adminDashboard");
                     exit;
                 }
  if (password_verify($password, $usuario["password"])) {

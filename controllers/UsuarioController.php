@@ -18,4 +18,8 @@ class UsuarioController{
         exit();
     }
 
+    public function adminDashboard(){
+       
+        require_once "views/Admin/dashboard_admin.php";
+    }
 }

@@ -2,105 +2,262 @@
 require_once "../../../config/db.php";
 $conn = Database::conectar();
 
-$data = $conn->query("
-SELECT c.id_compra, p.nombre as proveedor, c.precio_total, c.fecha
-FROM compras c
-INNER JOIN proveedores p ON c.id_proveedor = p.id_proveedores
-ORDER BY c.id_compra DESC
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    header("Location: compras.php");
+    exit;
+}
+
+$id = intval($_GET['id']);
+
+// CONSULTA DE LA COMPRA
+$stmt = $conn->prepare("
+    SELECT *
+    FROM compras
+    WHERE id_compra = ?
 ");
+
+$stmt->bind_param("i", $id);
+$stmt->execute();
+
+$compra = $stmt->get_result()->fetch_assoc();
+
+$stmt->close();
+
+if (!$compra) {
+    header("Location: compras.php");
+    exit;
+}
+
+// PROVEEDORES
+$proveedores = $conn->query("
+    SELECT * 
+    FROM proveedores
+    ORDER BY nombre ASC
+");
+
+// ACTUALIZAR
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $id_proveedor = intval($_POST['id_proveedor']);
+    $precio_total = floatval($_POST['precio_total']);
+    $fecha        = $_POST['fecha'];
+
+    $stmt = $conn->prepare("
+        UPDATE compras
+        SET 
+            id_proveedor = ?,
+            precio_total = ?,
+            fecha = ?
+        WHERE id_compra = ?
+    ");
+
+    $stmt->bind_param(
+        "idsi",
+        $id_proveedor,
+        $precio_total,
+        $fecha,
+        $id
+    );
+
+    if ($stmt->execute()) {
+
+        $stmt->close();
+
+        echo "
+        <script>
+            alert('Compra actualizada correctamente');
+            window.location='compras.php';
+        </script>
+        ";
+
+        exit;
+
+    } else {
+
+        echo "
+        <script>
+            alert('Error al actualizar');
+        </script>
+        ";
+    }
+}
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
 <meta charset="UTF-8">
-<title>Compras</title>
+<title>Editar Compra</title>
 
-<style>
-body{
-    font-family: Arial;
-    background: linear-gradient(135deg,#0f4c81,#2f7bbd,#3fa9f5);
-    padding:40px;
-}
-.container{
-    background:white;
-    padding:30px;
-    border-radius:15px;
-    max-width:900px;
-    margin:auto;
-}
-h1{color:#0f4c81;}
-
-.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.btn{
-    background:#0f4c81;
-    color:white;
-    padding:10px 15px;
-    border-radius:8px;
-    text-decoration:none;
-}
-
-.btn:hover{background:#09365c;}
-
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-th{background:#0f4c81;color:white;}
-th,td{padding:10px;text-align:center;}
-
-.acciones a{
-    padding:6px 10px;
-    border-radius:6px;
-    text-decoration:none;
-    color:white;
-    margin:2px;
-}
-
-.editar{background:#28a745;}
-.eliminar{background:#dc3545;}
-</style>
+<link rel="stylesheet" href="../../../public/css/compras/editar_compra.css">
 
 </head>
-<body>
 
+<body>
+<style>
+    *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Segoe UI', sans-serif;
+    background:#f4f7fb;
+    padding:40px;
+    color:#1e293b;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.05);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:30px;
+    color:#0f172a;
+    font-size:30px;
+}
+
+form{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+label{
+    font-size:14px;
+    font-weight:600;
+    color:#334155;
+}
+
+input,
+select{
+    width:100%;
+    padding:14px;
+    border:1px solid #dbe2ea;
+    border-radius:10px;
+    font-size:14px;
+    background:white;
+    transition:.3s;
+}
+
+input:focus,
+select:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,0.10);
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:14px;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+    margin-top:10px;
+}
+
+button:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.volver{
+    display:inline-block;
+    margin-top:20px;
+    text-decoration:none;
+    color:#2563eb;
+    font-weight:600;
+}
+
+.volver:hover{
+    text-decoration:underline;
+}
+
+@media(max-width:768px){
+
+    body{
+        padding:20px;
+    }
+
+    .container{
+        padding:25px;
+    }
+
+}
+</style>
 <div class="container">
 
-<div class="top">
-<h1>Compras</h1>
-<a href="crear_compra.php" class="btn">+ Nueva Compra</a>
-</div>
+    <h1>Editar Compra</h1>
 
-<table>
-<tr>
-<th>ID</th>
-<th>Proveedor</th>
-<th>Total</th>
-<th>Fecha</th>
-<th>Acciones</th>
-</tr>
+    <form method="POST">
 
-<?php while($c = $data->fetch_assoc()){ ?>
-<tr>
-<td><?= $c['id_compra'] ?></td>
-<td><?= $c['proveedor'] ?></td>
-<td>$<?= $c['precio_total'] ?></td>
-<td><?= $c['fecha'] ?></td>
+        <!-- PROVEEDOR -->
+        <label>Proveedor</label>
 
-<td class="acciones">
-<a class="eliminar"
-href="eliminar_compra.php?id=<?= $c['id_compra'] ?>"
-onclick="return confirm('¿Eliminar compra?')">
-Eliminar
-</a>
-</td>
+        <select name="id_proveedor" required>
 
-</tr>
-<?php } ?>
+            <?php while($p = $proveedores->fetch_assoc()){ ?>
 
-</table>
+            <option 
+                value="<?= $p['id_proveedores'] ?>"
+                <?= $p['id_proveedores'] == $compra['id_proveedor'] ? 'selected' : '' ?>
+            >
+
+                <?= htmlspecialchars($p['nombre']) ?>
+
+            </option>
+
+            <?php } ?>
+
+        </select>
+
+        <!-- TOTAL -->
+        <label>Total</label>
+
+        <input
+        type="number"
+        name="precio_total"
+        step="0.01"
+        min="0"
+        value="<?= $compra['precio_total'] ?>"
+        required
+        >
+
+        <!-- FECHA -->
+        <label>Fecha</label>
+
+        <input
+        type="date"
+        name="fecha"
+        value="<?= $compra['fecha'] ?>"
+        required
+        >
+
+        <button type="submit">
+
+            Guardar Cambios
+
+        </button>
+
+    </form>
+
+    <a class="volver" href="compras.php">
+
+        ⬅ Volver
+
+    </a>
 
 </div>
 

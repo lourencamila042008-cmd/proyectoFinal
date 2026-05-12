@@ -1,5 +1,5 @@
 <?php
-require_once "models/Cliente.php";
+require_once __DIR__."/../models/Clientes.php";
 
 class ClientesController{
 

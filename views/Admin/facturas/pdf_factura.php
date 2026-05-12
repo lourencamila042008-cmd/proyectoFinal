@@ -27,44 +27,115 @@ if (!$f) {
 
 $html = "
 <style>
-    body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
-    h1   { color: #0f4c81; border-bottom: 2px solid #0f4c81; padding-bottom: 10px; }
-    .info { margin: 20px 0; }
-    .info p { margin: 6px 0; font-size: 14px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th { background: #0f4c81; color: white; padding: 10px; text-align: left; }
-    td { padding: 10px; border-bottom: 1px solid #ddd; font-size: 14px; }
-    .total { text-align: right; margin-top: 20px; font-size: 16px; font-weight: bold; color: #0f4c81; }
+
+body{
+    font-family:Arial, sans-serif;
+    padding:40px;
+    color:#334155;
+}
+
+.header{
+    border-bottom:3px solid #17345f;
+    padding-bottom:15px;
+    margin-bottom:30px;
+}
+
+h1{
+    color:#17345f;
+    margin:0;
+}
+
+.info{
+    margin-top:20px;
+}
+
+.info p{
+    margin:8px 0;
+    font-size:14px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:30px;
+}
+
+th{
+    background:#17345f;
+    color:white;
+    padding:14px;
+    text-align:left;
+    font-size:14px;
+}
+
+td{
+    padding:14px;
+    border-bottom:1px solid #e2e8f0;
+    font-size:14px;
+}
+
+.total{
+    margin-top:30px;
+    text-align:right;
+    font-size:20px;
+    font-weight:bold;
+    color:#17345f;
+}
+
+.estado{
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:20px;
+    background:#dcfce7;
+    color:#16a34a;
+    font-size:13px;
+    font-weight:bold;
+}
+
 </style>
 
-<h1>Factura #$id</h1>
+<div class='header'>
+    <h1>Factura #$id</h1>
+</div>
 
 <div class='info'>
     <p><strong>Cliente:</strong> {$f['nombre_cliente']}</p>
     <p><strong>Fecha:</strong> {$f['fecha']}</p>
-    <p><strong>Estado:</strong> " . ucfirst($f['estado']) . "</p>
+    <p>
+        <strong>Estado:</strong>
+        <span class='estado'>
+            " . ucfirst($f['estado']) . "
+        </span>
+    </p>
 </div>
 
 <table>
-    <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio unitario</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{$f['nombre_producto']}</td>
-            <td>{$f['cantidad']}</td>
-            <td>$" . number_format($f['precio'], 0, ',', '.') . "</td>
-            <td>$" . number_format($f['subtotal'], 0, ',', '.') . "</td>
-        </tr>
-    </tbody>
+
+<thead>
+<tr>
+<th>Producto</th>
+<th>Cantidad</th>
+<th>Precio</th>
+<th>Subtotal</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>{$f['nombre_producto']}</td>
+<td>{$f['cantidad']}</td>
+<td>$" . number_format($f['precio'], 0, ',', '.') . "</td>
+<td>$" . number_format($f['subtotal'], 0, ',', '.') . "</td>
+</tr>
+
+</tbody>
+
 </table>
 
-<div class='total'>Total: $" . number_format($f['subtotal'], 0, ',', '.') . "</div>
+<div class='total'>
+Total: $" . number_format($f['subtotal'], 0, ',', '.') . "
+</div>
 ";
 
 $pdf = new Dompdf();
