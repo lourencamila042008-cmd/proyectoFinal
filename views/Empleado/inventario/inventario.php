@@ -2,8 +2,9 @@
 session_start();
 
 // 🔒 PERMITIR admin y empleado
-if (!isset($_SESSION["rol"]) || 
+if (!isset($_SESSION["rol"]) ||
    ($_SESSION["rol"] != "admin" && $_SESSION["rol"] != "empleado")) {
+
     header("Location: ../Auth/login.php");
     exit();
 }
@@ -11,203 +12,402 @@ if (!isset($_SESSION["rol"]) ||
 $esAdmin = $_SESSION["rol"] == "admin";
 
 require_once __DIR__ . "/../../../config/db.php";
+
 $conn = Database::Conectar();
 
-$sql = "SELECT * FROM productos ORDER BY id_productos DESC";
+$sql = "
+    SELECT *
+    FROM productos
+    ORDER BY id_productos DESC
+";
+
 $result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
-<title>Inventario - InvoicePro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Inventario | InvoicePro</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: linear-gradient(135deg, #0f4c81, #3a7bd5, #00c6ff);
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
 }
 
-/* 🔝 Barra superior */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    color: white;
+body{
+    background:#f3f4f6;
+    color:#0f172a;
+    padding:30px;
 }
 
-.top-bar input {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    width: 250px;
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    margin-bottom:30px;
+    flex-wrap:wrap;
 }
 
-/* Botón */
-.top-bar button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    background: white;
-    color: #0f4c81;
-    font-weight: bold;
-    cursor: pointer;
+.title h1{
+    font-size:45px;
+    font-weight:800;
+    margin-bottom:5px;
 }
 
-/* 📦 CONTENEDOR */
-.table-container {
-    width: 90%;
-    margin: 20px auto;
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+.title p{
+    color:#64748b;
+    font-size:18px;
 }
 
-/* 📊 TABLA */
-table {
-    width: 100%;
-    border-collapse: collapse;
+/* ACTIONS */
+
+.actions{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
 }
 
-thead {
-    background: #0f4c81;
-    color: white;
+/* BUSCADOR */
+
+.search{
+    width:320px;
 }
 
-th, td {
-    padding: 12px;
-    text-align: center;
+.search input{
+    width:100%;
+    border:none;
+    outline:none;
+    padding:16px 20px;
+    border-radius:16px;
+    background:white;
+    font-size:15px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
 }
 
-tr:nth-child(even) {
-    background: #f4f6f9;
+/* BOTONES */
+
+.btn{
+    background:#16396b;
+    color:white;
+    text-decoration:none;
+    padding:14px 22px;
+    border-radius:14px;
+    font-weight:600;
+    transition:.3s;
+    display:inline-block;
+    border:none;
+    cursor:pointer;
 }
 
-tr:hover {
-    background: #e6f0ff;
+.btn:hover{
+    transform:translateY(-2px);
 }
 
-/* 🔴 SIN STOCK */
-.agotado {
-    background: #ff4d4d !important;
-    color: white;
-    font-weight: bold;
+.btn-back{
+    background:#64748b;
 }
 
-/* 🟡 STOCK BAJO */
-.bajo {
-    background: #fff3cd !important;
+.btn-back:hover{
+    background:#475569;
 }
 
-/* Hover */
-.agotado:hover {
-    background: #ff3333 !important;
+/* TABLA */
+
+.table-box{
+    background:white;
+    border-radius:28px;
+    padding:25px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    overflow-x:auto;
 }
 
-.bajo:hover {
-    background: #ffe69c !important;
+.table-title{
+    font-size:24px;
+    margin-bottom:20px;
 }
-.btn {
-    background: white;
-    color: navy;
-    padding: 10px 15px;
-    border-radius: 8px;
-    text-decoration: none;
+
+table{
+    width:100%;
+    border-collapse:collapse;
 }
+
+th{
+    text-align:left;
+    padding:18px 15px;
+    font-size:14px;
+    color:#64748b;
+    border-bottom:2px solid #f1f5f9;
+}
+
+td{
+    padding:18px 15px;
+    border-bottom:1px solid #f1f5f9;
+    font-size:15px;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+/* STOCK */
+
+.agotado{
+    background:#fee2e2 !important;
+}
+
+.agotado td{
+    color:#b91c1c;
+    font-weight:600;
+}
+
+.bajo{
+    background:#fef3c7 !important;
+}
+
+.bajo td{
+    color:#92400e;
+    font-weight:600;
+}
+
+/* BADGES */
+
+.badge{
+    padding:6px 12px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:700;
+    display:inline-block;
+    margin-left:10px;
+}
+
+.badge-agotado{
+    background:#dc2626;
+    color:white;
+}
+
+.badge-bajo{
+    background:#f59e0b;
+    color:white;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+    body{
+        padding:20px;
+    }
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .title h1{
+        font-size:35px;
+    }
+
+    .search{
+        width:100%;
+    }
+
+    .table-box{
+        padding:15px;
+    }
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div class="top-bar">
-    <h1>Inventario</h1>
-<a class="btn" href="../dashboard_empleado.php">volver al inicio</a>
-    <input type="text" id="buscar" placeholder="Buscar producto...">
+<!-- HEADER -->
 
-    <!-- SOLO ADMIN -->
-    <?php if($esAdmin): ?>
-        <button onclick="location.href='agregar_producto.php'">
-            ➕ Agregar producto
-        </button>
-    <?php endif; ?>
+<div class="header">
+
+    <div class="title">
+
+        <h1>Inventario</h1>
+
+        <p>
+            Gestiona productos y control de stock.
+        </p>
+
+    </div>
+
+    <div class="actions">
+
+        <!-- VOLVER -->
+
+        <a class="btn btn-back"
+        href="../dashboard_empleado.php">
+
+            ← Volver
+
+        </a>
+
+        <!-- BUSCADOR -->
+
+        <div class="search">
+
+            <input type="text"
+            id="buscar"
+            placeholder="Buscar producto...">
+
+        </div>
+
+        <!-- SOLO ADMIN -->
+
+        <?php if($esAdmin): ?>
+
+        <a class="btn"
+        href="agregar_producto.php">
+
+            + Agregar producto
+
+        </a>
+
+        <?php endif; ?>
+
+    </div>
+
 </div>
 
-<div class="table-container">
+<!-- TABLA -->
 
-<table id="tablaProductos">
+<div class="table-box">
 
-<thead>
-<tr>
-<th>ID</th>
-<th>Nombre</th>
-<th>Stock</th>
-<th>Precio Venta</th>
-<th>Precio Compra</th>
-<th>Mínimo Stock</th>
-</tr>
-</thead>
+    <h2 class="table-title">
+        Lista de productos
+    </h2>
 
-<tbody>
+    <table id="tablaProductos">
 
-<?php while($p = $result->fetch_assoc()): 
+        <thead>
 
-    $clase = "";
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Stock</th>
+                <th>Precio Venta</th>
+                <th>Precio Compra</th>
+                <th>Mínimo Stock</th>
+            </tr>
 
-    if ($p["stock"] <= 0) {
-        $clase = "agotado";
-    } elseif ($p["stock"] <= $p["min_stock"]) {
-        $clase = "bajo";
-    }
-?>
+        </thead>
 
-<tr class="<?= $clase ?>">
+        <tbody>
 
-<td><?= $p["id_productos"] ?></td>
+        <?php while($p = $result->fetch_assoc()):
 
-<td><?= htmlspecialchars($p["nombre"]) ?></td>
+            $clase = "";
 
-<td>
-    <?= $p["stock"] ?>
+            if ($p["stock"] <= 0) {
 
-    <?php if($p["stock"] <= 0): ?>
-        <span>(AGOTADO)</span>
-    <?php elseif($p["stock"] <= $p["min_stock"]): ?>
-        <span style="color:#856404; font-weight:bold;">(BAJO)</span>
-    <?php endif; ?>
-</td>
+                $clase = "agotado";
 
-<td><?= $p["precio_venta"] ?></td>
-<td><?= $p["precio_compra"] ?></td>
-<td><?= $p["min_stock"] ?></td>
+            } elseif ($p["stock"] <= $p["min_stock"]) {
 
-</tr>
+                $clase = "bajo";
+            }
 
-<?php endwhile; ?>
+        ?>
 
-</tbody>
+        <tr class="<?= $clase ?>">
 
-</table>
+            <td>
+                #<?= $p["id_productos"] ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($p["nombre"]) ?>
+            </td>
+
+            <td>
+
+                <?= $p["stock"] ?>
+
+                <?php if($p["stock"] <= 0): ?>
+
+                    <span class="badge badge-agotado">
+                        AGOTADO
+                    </span>
+
+                <?php elseif($p["stock"] <= $p["min_stock"]): ?>
+
+                    <span class="badge badge-bajo">
+                        STOCK BAJO
+                    </span>
+
+                <?php endif; ?>
+
+            </td>
+
+            <td>
+                $<?= number_format($p["precio_venta"], 0, ',', '.') ?>
+            </td>
+
+            <td>
+                $<?= number_format($p["precio_compra"], 0, ',', '.') ?>
+            </td>
+
+            <td>
+                <?= $p["min_stock"] ?>
+            </td>
+
+        </tr>
+
+        <?php endwhile; ?>
+
+        </tbody>
+
+    </table>
 
 </div>
 
 <script>
-// 🔎 BUSCADOR
-document.getElementById("buscar").addEventListener("keyup", function() {
 
-    let filtro = this.value.toLowerCase();
-    let filas = document.querySelectorAll("#tablaProductos tbody tr");
+// 🔎 BUSCADOR
+
+document.getElementById("buscar")
+.addEventListener("keyup", function(){
+
+    let filtro =
+    this.value.toLowerCase();
+
+    let filas =
+    document.querySelectorAll(
+        "#tablaProductos tbody tr"
+    );
 
     filas.forEach(fila => {
-        let texto = fila.textContent.toLowerCase();
-        fila.style.display = texto.includes(filtro) ? "" : "none";
+
+        let texto =
+        fila.textContent.toLowerCase();
+
+        fila.style.display =
+        texto.includes(filtro)
+        ? ""
+        : "none";
+
     });
 
 });
+
 </script>
 
 </body>

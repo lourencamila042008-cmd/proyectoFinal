@@ -13,16 +13,14 @@ $model = new Cliente();
 
 $errores = [];
 
-// 🔥 GUARDAR CLIENTE
+// GUARDAR CLIENTE
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $nombre   = trim($_POST['nombre']);
     $cedula   = trim($_POST['cedula']);
     $telefono = trim($_POST['telefono']);
 
-    // =========================
     // VALIDACIONES
-    // =========================
 
     if(empty($nombre)){
         $errores[] = "El nombre es obligatorio";
@@ -44,9 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $errores[] = "El teléfono debe ser numérico";
     }
 
-    // =========================
     // VALIDAR DUPLICADO
-    // =========================
 
     if(empty($errores)){
 
@@ -73,9 +69,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $stmt->close();
     }
 
-    // =========================
     // GUARDAR
-    // =========================
 
     if(empty($errores)){
 
@@ -87,18 +81,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
         if($guardar){
 
-            echo "
-            <script>
-            alert('Cliente guardado correctamente');
-            window.location='clientes_empleado.php';
-            </script>
-            ";
-
+            header("Location: clientes_empleado.php");
             exit();
-
-        } else {
-
-            $errores[] = "Error al guardar cliente";
         }
     }
 }
@@ -112,7 +96,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Clientes | InvoicePro</title>
+<title>Crear Cliente</title>
 
 <style>
 
@@ -125,14 +109,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 body{
     background:#f3f4f6;
-    color:#0f172a;
     padding:30px;
+    color:#0f172a;
 }
 
 /* CONTAINER */
 
 .container{
-    max-width:1200px;
+    max-width:850px;
     margin:auto;
 }
 
@@ -142,13 +126,13 @@ body{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:20px;
     margin-bottom:30px;
+    gap:20px;
     flex-wrap:wrap;
 }
 
 .title h1{
-    font-size:45px;
+    font-size:42px;
     font-weight:800;
     margin-bottom:5px;
 }
@@ -163,7 +147,6 @@ body{
 .actions{
     display:flex;
     gap:15px;
-    flex-wrap:wrap;
 }
 
 .btn{
@@ -176,7 +159,6 @@ body{
     transition:.3s;
     border:none;
     cursor:pointer;
-    display:inline-block;
 }
 
 .btn:hover{
@@ -196,9 +178,8 @@ body{
 .card{
     background:white;
     border-radius:28px;
-    padding:30px;
+    padding:35px;
     box-shadow:0 2px 10px rgba(0,0,0,0.05);
-    margin-bottom:30px;
 }
 
 /* FORM */
@@ -243,42 +224,12 @@ input:focus{
     font-weight:500;
 }
 
-/* TABLA */
+/* FOOTER */
 
-.table-box{
-    background:white;
-    border-radius:28px;
-    padding:25px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.05);
-    overflow-x:auto;
-}
-
-.table-title{
-    font-size:24px;
-    margin-bottom:20px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th{
-    text-align:left;
-    padding:18px 15px;
-    font-size:14px;
-    color:#64748b;
-    border-bottom:2px solid #f1f5f9;
-}
-
-td{
-    padding:18px 15px;
-    border-bottom:1px solid #f1f5f9;
-    font-size:15px;
-}
-
-tr:hover{
-    background:#f8fafc;
+.form-footer{
+    margin-top:30px;
+    display:flex;
+    justify-content:flex-end;
 }
 
 /* RESPONSIVE */
@@ -295,7 +246,7 @@ tr:hover{
     }
 
     .title h1{
-        font-size:35px;
+        font-size:34px;
     }
 
     form{
@@ -307,20 +258,15 @@ tr:hover{
     }
 
     .card{
-        padding:20px;
+        padding:25px;
     }
 
-    .table-box{
-        padding:15px;
+    .form-footer{
+        justify-content:stretch;
     }
 
-    .actions{
+    .form-footer button{
         width:100%;
-    }
-
-    .actions a{
-        width:100%;
-        text-align:center;
     }
 }
 
@@ -338,100 +284,84 @@ tr:hover{
 
         <div class="title">
 
-            <h1>Clientes</h1>
+            <h1>Nuevo Cliente</h1>
 
             <p>
-                Gestiona y registra clientes del sistema.
+                Registra un nuevo cliente en el sistema.
             </p>
 
         </div>
 
-        <!-- BOTÓN AGREGAR CLIENTE -->
-<div class="actions">
+        <div class="actions">
 
-    <a href="../dashboard_empleado.php"
-    class="btn btn-back">
+            <a href="clientes_empleado.php"
+            class="btn btn-back">
 
-        ← Volver
+                ← Volver
 
-    </a>
+            </a>
 
-    <a href="crearcliente.php"
-    class="btn">
+        </div>
 
-        + Nuevo cliente
-
-    </a>
-
-</div>
     </div>
 
+    <!-- CARD -->
 
-        
-    <!-- TABLA -->
+    <div class="card">
 
-    <?php
+        <!-- ERRORES -->
 
-    require_once "../../../config/db.php";
+        <?php if(!empty($errores)): ?>
 
-    $conn = Database::Conectar();
+            <?php foreach($errores as $e): ?>
 
-    $clientes = $conn->query("
-    SELECT *
-    FROM clientes
-    ORDER BY id_clientes DESC
-    ");
+                <div class="alert">
 
-    ?>
+                    <?= htmlspecialchars($e) ?>
 
-    <div class="table-box">
+                </div>
 
-        <h2 class="table-title">
-            Lista de clientes
-        </h2>
+            <?php endforeach; ?>
 
-        <table>
+        <?php endif; ?>
 
-            <thead>
+        <!-- FORM -->
 
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Cédula</th>
-                    <th>Teléfono</th>
-                </tr>
+        <form method="POST">
 
-            </thead>
+            <input
+            type="text"
+            name="nombre"
+            placeholder="Nombre completo"
+            required
+            >
 
-            <tbody>
+            <input
+            type="text"
+            name="cedula"
+            placeholder="Cédula"
+            required
+            >
 
-            <?php while($c = $clientes->fetch_assoc()){ ?>
+            <input
+            type="text"
+            name="telefono"
+            placeholder="Teléfono"
+            class="full"
+            >
 
-            <tr>
+            <div class="form-footer full">
 
-                <td>
-                    #<?= $c['id_clientes'] ?>
-                </td>
+                <button type="submit"
+                class="btn">
 
-                <td>
-                    <?= htmlspecialchars($c['nombre']) ?>
-                </td>
+                    Guardar Cliente
 
-                <td>
-                    <?= htmlspecialchars($c['cedula']) ?>
-                </td>
+                </button>
 
-                <td>
-                    <?= htmlspecialchars($c['telefono']) ?>
-                </td>
+            </div>
 
-            </tr>
-
-            <?php } ?>
-
-            </tbody>
-
-        </table>
+        </form>
 
     </div>
 

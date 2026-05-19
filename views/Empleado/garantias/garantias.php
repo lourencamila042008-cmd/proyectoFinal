@@ -2,32 +2,35 @@
 session_start();
 
 // 🔒 ROLES
-if (!isset($_SESSION["rol"]) || 
+if (!isset($_SESSION["rol"]) ||
    ($_SESSION["rol"] != "admin" && $_SESSION["rol"] != "empleado")) {
     header("Location: ../Auth/login.php");
     exit();
 }
-
-$esAdmin = $_SESSION["rol"] == "admin";
 
 require_once "../../../config/db.php";
 $conn = Database::Conectar();
 
 // 🔄 ACTUALIZAR A VENCIDA
 $conn->query("
-    UPDATE garantias 
-    SET estado = 'vencida' 
-    WHERE fecha_fin < CURDATE() 
+    UPDATE garantias
+    SET estado = 'vencida'
+    WHERE fecha_fin < CURDATE()
     AND estado != 'vencida'
 ");
 
 // 📊 CONTADORES
-$vencidas = $conn->query("SELECT COUNT(*) as total FROM garantias WHERE estado = 'vencida'")->fetch_assoc()['total'];
+$vencidas = $conn->query("
+    SELECT COUNT(*) as total
+    FROM garantias
+    WHERE estado = 'vencida'
+")->fetch_assoc()['total'];
 
 $porVencer = $conn->query("
-    SELECT COUNT(*) as total 
-    FROM garantias 
-    WHERE fecha_fin BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 3 DAY)
+    SELECT COUNT(*) as total
+    FROM garantias
+    WHERE fecha_fin BETWEEN CURDATE()
+    AND DATE_ADD(CURDATE(), INTERVAL 3 DAY)
     AND estado != 'vencida'
 ")->fetch_assoc()['total'];
 
@@ -43,225 +46,413 @@ $garantias = $conn->query("
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Garantías</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #f4f6f9;
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
 }
 
-/* 🔝 TOPBAR */
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+body{
+    background:#f3f4f6;
+    color:#0f172a;
+    padding:30px;
 }
 
-.btn {
-    background: #0f4c81;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    text-decoration: none;
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+    gap:20px;
+    flex-wrap:wrap;
 }
 
-/* 🔎 BUSCADOR */
-.search-box {
-    padding: 15px 40px;
+.title h1{
+    font-size:45px;
+    font-weight:800;
+    margin-bottom:5px;
 }
 
-.search-box input {
-    width: 300px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+.title p{
+    color:#64748b;
+    font-size:18px;
 }
 
-/* 📊 CARDS */
-.stats {
-    display: flex;
-    gap: 15px;
-    padding: 0 40px 20px;
+/* TOP ACTIONS */
+
+.actions{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
 }
 
-.card {
-    background: white;
-    padding: 15px 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    font-weight: bold;
+.search{
+    width:320px;
 }
 
-.vencidas { border-left: 5px solid red; }
-.porvencer { border-left: 5px solid orange; }
+.search input{
+    width:100%;
+    border:none;
+    outline:none;
+    padding:16px 20px;
+    border-radius:16px;
+    background:white;
+    font-size:15px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
 
-/* CONTENEDOR */
-.container {
-    width: 95%;
-    margin: auto;
+.btn-back{
+    background:#64748b;
+}
+
+.btn-back:hover{
+    background:#475569;
+}
+
+.btn{
+    background:#16396b;
+    color:white;
+    text-decoration:none;
+    padding:15px 22px;
+    border-radius:14px;
+    font-weight:600;
+    transition:.3s;
+    display:inline-block;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.card-stat{
+    background:white;
+    padding:25px;
+    border-radius:24px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.04);
+}
+
+.card-stat h3{
+    font-size:17px;
+    color:#64748b;
+    margin-bottom:10px;
+}
+
+.card-stat .number{
+    font-size:38px;
+    font-weight:700;
+}
+
+.vencidas .number{
+    color:#dc2626;
+}
+
+.porvencer .number{
+    color:#ea580c;
 }
 
 /* TABLA */
-.table-box {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+
+.table-box{
+    background:white;
+    border-radius:28px;
+    padding:25px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    overflow-x:auto;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.table-title{
+    font-size:24px;
+    margin-bottom:20px;
 }
 
-th {
-    background: #0f4c81;
-    color: white;
-    padding: 12px;
+table{
+    width:100%;
+    border-collapse:collapse;
 }
 
-td {
-    padding: 12px;
-    text-align: center;
+th{
+    text-align:left;
+    padding:18px 15px;
+    font-size:14px;
+    color:#64748b;
+    border-bottom:2px solid #f1f5f9;
 }
 
-tr:nth-child(even) {
-    background: #f9f9f9;
+td{
+    padding:18px 15px;
+    border-bottom:1px solid #f1f5f9;
+    font-size:15px;
+}
+
+tr:hover{
+    background:#f8fafc;
 }
 
 /* ESTADOS */
-.estado {
-    padding: 5px 10px;
-    border-radius: 8px;
-    color: white;
+
+.estado{
+    padding:8px 14px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-block;
 }
 
-.estado-pendiente { background: #ffc107; color: black; }
-.estado-revision { background: #17a2b8; }
-.estado-resuelto { background: #28a745; }
-.estado-vencida { background: #6c757d; }
-
-tr.vencida {
-    background: #eeeeee;
-    opacity: 0.8;
+.estado-pendiente{
+    background:#fef3c7;
+    color:#92400e;
 }
 
-/* BOTONES */
-.btn-ver {
-    background: #0f4c81;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 6px;
-    text-decoration: none;
+.estado-revision{
+    background:#dbeafe;
+    color:#1d4ed8;
 }
+
+.estado-resuelto{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.estado-vencida{
+    background:#e5e7eb;
+    color:#374151;
+}
+
+tr.vencida{
+    opacity:.7;
+}
+
+/* BOTON VER */
+
+.btn-ver{
+    background:#16396b;
+    color:white;
+    text-decoration:none;
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    display:inline-block;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+    body{
+        padding:20px;
+    }
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .search{
+        width:100%;
+    }
+
+    .title h1{
+        font-size:35px;
+    }
+
+    .table-box{
+        padding:15px;
+    }
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div class="topbar">
-    <h1>Garantías</h1>
-    <a class="btn" href="../dashboard_empleado.php">volver al inicio</a>
-    <a class="btn" href="crear_garantia.php">+ Nueva garantía</a>
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="title">
+        <h1>Garantías</h1>
+        <p>Gestiona solicitudes y procesos de garantías.</p>
+    </div>
+
+    <div class="actions">
+
+    <a class="btn btn-back" href="../dashboard_empleado.php">
+        ← Volver
+    </a>
+
+    <div class="search">
+        <input type="text" id="buscar"
+        placeholder="Buscar garantía...">
+    </div>
+
+    <a class="btn" href="crear_garantia.php">
+        + Nueva garantía
+    </a>
+
+</div>
 </div>
 
-<!-- 🔎 BUSCADOR -->
-<div class="search-box">
-    <input type="text" id="buscar" placeholder="Buscar por producto, factura, estado...">
-</div>
+<!-- STATS -->
 
-<!-- 📊 CONTADORES -->
 <div class="stats">
-    <div class="card vencidas">
-        🔴 Vencidas: <?= $vencidas ?>
+
+    <div class="card-stat vencidas">
+        <h3>Garantías vencidas</h3>
+        <div class="number"><?= $vencidas ?></div>
     </div>
 
-    <div class="card porvencer">
-        🟠 Por vencer (3 días): <?= $porVencer ?>
+    <div class="card-stat porvencer">
+        <h3>Por vencer (3 días)</h3>
+        <div class="number"><?= $porVencer ?></div>
     </div>
+
 </div>
 
-<div class="container">
+<!-- TABLA -->
+
 <div class="table-box">
 
-<table id="tablaGarantias">
-<thead>
-<tr>
-<th>ID</th>
-<th>Factura</th>
-<th>Producto</th>
-<th>Motivo</th>
-<th>Solución</th>
-<th>Estado</th>
-<th>Inicio</th>
-<th>Fin</th>
-<th>Acciones</th>
-</tr>
-</thead>
+    <h2 class="table-title">
+        Lista de garantías
+    </h2>
 
-<tbody>
+    <table id="tablaGarantias">
 
-<?php while($g = $garantias->fetch_assoc()){ ?>
+        <thead>
 
-<tr class="<?= $g['estado'] == 'vencida' ? 'vencida' : '' ?>">
+            <tr>
+                <th>ID</th>
+                <th>Factura</th>
+                <th>Producto</th>
+                <th>Motivo</th>
+                <th>Solución</th>
+                <th>Estado</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Acciones</th>
+            </tr>
 
-<td><?= $g['id_garantia'] ?></td>
-<td>#<?= $g['id_facturas'] ?></td>
-<td><?= htmlspecialchars($g['nombre_producto']) ?></td>
-<td><?= ucfirst($g['motivo']) ?></td>
-<td><?= ucfirst($g['solucion']) ?></td>
+        </thead>
 
-<td>
-<?php
-if($g['estado'] == 'pendiente'){
-    echo "<span class='estado estado-pendiente'>Pendiente</span>";
-} elseif($g['estado'] == 'en_revision'){
-    echo "<span class='estado estado-revision'>En revisión</span>";
-} elseif($g['estado'] == 'resuelto'){
-    echo "<span class='estado estado-resuelto'>Resuelto</span>";
-} else {
-    echo "<span class='estado estado-vencida'>Vencida</span>";
-}
-?>
-</td>
+        <tbody>
 
-<td><?= $g['fecha_inicio'] ?></td>
-<td><?= $g['fecha_fin'] ?></td>
+        <?php while($g = $garantias->fetch_assoc()){ ?>
 
-<td>
-    <a class="btn-ver" href="ver_garantia.php?id=<?= $g['id_garantia'] ?>">Ver</a>
-</td>
+        <tr class="<?= $g['estado'] == 'vencida' ? 'vencida' : '' ?>">
 
-</tr>
+            <td>#<?= $g['id_garantia'] ?></td>
 
-<?php } ?>
+            <td>#<?= $g['id_facturas'] ?></td>
 
-</tbody>
-</table>
+            <td><?= htmlspecialchars($g['nombre_producto']) ?></td>
 
-</div>
+            <td><?= ucfirst($g['motivo']) ?></td>
+
+            <td><?= ucfirst($g['solucion']) ?></td>
+
+            <td>
+
+            <?php
+
+            if($g['estado'] == 'pendiente'){
+
+                echo "<span class='estado estado-pendiente'>
+                Pendiente
+                </span>";
+
+            } elseif($g['estado'] == 'en_revision'){
+
+                echo "<span class='estado estado-revision'>
+                En revisión
+                </span>";
+
+            } elseif($g['estado'] == 'resuelto'){
+
+                echo "<span class='estado estado-resuelto'>
+                Resuelto
+                </span>";
+
+            } else {
+
+                echo "<span class='estado estado-vencida'>
+                Vencida
+                </span>";
+            }
+
+            ?>
+
+            </td>
+
+            <td><?= $g['fecha_inicio'] ?></td>
+
+            <td><?= $g['fecha_fin'] ?></td>
+
+            <td>
+
+                <a class="btn-ver"
+                href="ver_garantia.php?id=<?= $g['id_garantia'] ?>">
+
+                    Ver
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        <?php } ?>
+
+        </tbody>
+
+    </table>
+
 </div>
 
 <script>
-// 🔎 BUSCADOR EN TIEMPO REAL
-document.getElementById("buscar").addEventListener("keyup", function() {
+
+// 🔎 BUSCADOR
+
+document.getElementById("buscar").addEventListener("keyup", function(){
 
     let filtro = this.value.toLowerCase();
+
     let filas = document.querySelectorAll("#tablaGarantias tbody tr");
 
     filas.forEach(fila => {
+
         let texto = fila.textContent.toLowerCase();
-        fila.style.display = texto.includes(filtro) ? "" : "none";
+
+        fila.style.display = texto.includes(filtro)
+        ? ""
+        : "none";
+
     });
 
 });
+
 </script>
 
 </body>
