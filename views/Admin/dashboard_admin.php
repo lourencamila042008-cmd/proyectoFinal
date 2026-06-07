@@ -1,469 +1,371 @@
 <?php
 session_start();
 
-// 🔐 SOLO ADMIN
+// 🔐 SOLO ADMIN PUEDE ENTRAR
 if (!isset($_SESSION["rol"]) || $_SESSION["rol"] != "admin") {
     header("Location: /MVC-PRU/views/Auth/login.php");
     exit();
 }
-?>
 
+// 📋 DATOS DEL USUARIO ACTUAL
+$nombre_usuario = isset($_SESSION["nombre"]) ? $_SESSION["nombre"] : "Administrador";
+$rol_usuario    = $_SESSION["rol"];
+
+// 📂 RUTA BASE DE TU PROYECTO
+$base_url = "/MVC-PRU/views/Admin/";
+
+// 📡 CONEXIÓN A BASE DE DATOS
+require_once "../../config/db.php";
+$conn = Database::conectar();
+
+// 📅 OBTENER MES Y AÑO ACTUAL
+$mes_actual = date('m');
+$año_actual = date('Y');
+
+// 💰 CONSULTA: VENTAS TOTALES DEL MES (solo facturas PAGADAS)
+$sql_ventas = "SELECT SUM(df.subtotal) AS total_ventas 
+               FROM facturas f
+               JOIN detallefactura df ON f.id_facturas = df.id_facturas
+               WHERE f.estado = 'pagada' AND MONTH(f.fecha) = ? AND YEAR(f.fecha) = ?";
+$stmt = $conn->prepare($sql_ventas);
+$stmt->bind_param("ii", $mes_actual, $año_actual);
+$stmt->execute();
+$res_ventas = $stmt->get_result()->fetch_assoc();
+$ventas_totales = $res_ventas['total_ventas'] ?? 0;
+$stmt->close();
+
+// 💸 CONSULTA: GASTOS TOTALES DEL MES (PREPARADO)
+$gastos_totales = 0; 
+
+// ⚖️ BALANCE = VENTAS - GASTOS
+$balance = $ventas_totales - $gastos_totales;
+
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Administrador - InvoicePro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoicePro - Panel de Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#232c3b',       // Color fondo menú
+                        primary: '#fcd100',       // Color amarillo marca
+                        secondary: '#1e293b',     // Color textos principales
+                        azul: '#165DFF',          // Color botones/acciones
+                        gris: '#f8fafc',          // Fondo general
+                        activo: '#334155',        // Fondo menú activo
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Inter', sans-serif;
-}
-
-body{
-    background:#f4f6f9;
-    color:#1e293b;
-}
-
-.layout{
-    display:flex;
-    min-height:100vh;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-    width:270px;
-    background:#17345f;
-    padding:25px 20px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    position:fixed;
-    height:100vh;
-}
-
-.logo{
-    margin-bottom:40px;
-}
-
-.logo h2{
-    color:white;
-    font-size:28px;
-    font-weight:700;
-}
-
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
-
-.menu a{
-    text-decoration:none;
-    color:#dbe6f5;
-    padding:14px 16px;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    transition:.3s;
-    font-size:15px;
-    font-weight:500;
-}
-
-.menu a:hover{
-    background:#274a7a;
-    color:white;
-}
-
-.menu a.active{
-    background:#3b5b89;
-    color:white;
-}
-
-.logout-btn{
-    margin-top:40px;
-}
-
-.logout-btn a{
-    display:block;
-    text-decoration:none;
-    background:#ffffff10;
-    color:white;
-    text-align:center;
-    padding:14px;
-    border-radius:12px;
-    transition:.3s;
-    font-weight:500;
-}
-
-.logout-btn a:hover{
-    background:#ffffff20;
-}
-
-/* MAIN */
-
-.main{
-    margin-left:270px;
-    width:calc(100% - 270px);
-    padding:30px;
-}
-
-/* TOPBAR */
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
-}
-
-.topbar h1{
-    font-size:32px;
-    font-weight:700;
-    color:#0f172a;
-}
-
-.search-box input{
-    width:280px;
-    padding:14px 18px;
-    border:none;
-    outline:none;
-    border-radius:14px;
-    background:white;
-    box-shadow:0 2px 10px rgba(0,0,0,.05);
-    font-size:14px;
-}
-
-/* WELCOME */
-
-.welcome{
-    margin-bottom:30px;
-}
-
-.welcome h2{
-    font-size:34px;
-    margin-bottom:8px;
-    color:#0f172a;
-}
-
-.welcome p{
-    color:#64748b;
-    font-size:16px;
-}
-
-/* CARDS */
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.card{
-    background:white;
-    border-radius:22px;
-    padding:25px;
-    box-shadow:0 4px 18px rgba(0,0,0,.05);
-    transition:.3s;
-    border:1px solid #e2e8f0;
-}
-
-.card:hover{
-    transform:translateY(-4px);
-}
-
-.card-icon{
-    width:55px;
-    height:55px;
-    border-radius:16px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:26px;
-    margin-bottom:18px;
-}
-
-.blue{
-    background:#dbeafe;
-    color:#2563eb;
-}
-
-.green{
-    background:#dcfce7;
-    color:#16a34a;
-}
-
-.orange{
-    background:#ffedd5;
-    color:#ea580c;
-}
-
-.purple{
-    background:#f3e8ff;
-    color:#9333ea;
-}
-
-.card h3{
-    font-size:22px;
-    margin-bottom:10px;
-    color:#0f172a;
-}
-
-.card p{
-    color:#64748b;
-    font-size:14px;
-    margin-bottom:20px;
-    line-height:1.5;
-}
-
-.card button{
-    border:none;
-    background:#17345f;
-    color:white;
-    padding:12px 18px;
-    border-radius:12px;
-    cursor:pointer;
-    transition:.3s;
-    font-weight:600;
-}
-
-.card button:hover{
-    background:#254b83;
-}
-
-/* RESPONSIVE */
-
-@media(max-width:900px){
-
-    .sidebar{
-        width:100px;
-        padding:20px 10px;
-    }
-
-    .logo h2{
-        font-size:18px;
-        text-align:center;
-    }
-
-    .menu a{
-        justify-content:center;
-        font-size:0;
-    }
-
-    .menu a span{
-        font-size:20px;
-    }
-
-    .main{
-        margin-left:100px;
-        width:calc(100% - 100px);
-    }
-
-    .topbar{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:15px;
-    }
-
-    .search-box input{
-        width:100%;
-    }
-}
-
-</style>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .sombra-suave {
+                box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            }
+            .menu-activo {
+                @apply bg-activo text-white font-medium;
+            }
+        }
+    </style>
 </head>
+<body class="bg-gris font-inter text-secondary min-h-screen flex overflow-hidden">
 
-<body>
-
-<div class="layout">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-
-        <div>
-
-            <div class="logo">
-                <h2>InvoicePro</h2>
-            </div>
-
-            <div class="menu">
-
-                <a href="facturas/facturas.php">
-                    <span>📄</span>
-                    Facturas
-                </a>
-
-                <a href="productos/inventario.php">
-                    <span>📦</span>
-                    Inventario
-                </a>
-
-                <a href="garantias/iniciogarantias.php">
-                    <span>🛠️</span>
-                    Garantías
-                </a>
-
-                <a href="clientes/clientes.php" class="active">
-                    <span>👤</span>
-                    Clientes
-                </a>
-
-                <a href="compra/compras.php">
-                    <span>🛒</span>
-                    Compras
-                </a>
-
-                <a href="proveedores/proveedores.php">
-                    <span>🏭</span>
-                    Proveedores
-                </a>
-
-                <a href="ingresos/ingresos.php">
-                    <span>📊</span>
-                    Ingresos
-                </a>
-
-                <a href="usuario/usuarios.php">
-                    <span>👥</span>
-                    Usuarios
-                </a>
-
-            </div>
-
+    <!-- 🟦 MENÚ LATERAL IZQUIERDO -->
+    <aside class="w-[260px] bg-sidebar text-white h-screen sticky top-0 flex flex-col shadow-lg">
+        
+        <!-- Logo -->
+        <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+            <h1 class="text-[22px] font-bold text-primary flex items-center gap-2">
+                <i class="fa fa-file-text-o"></i> InvoicePro
+            </h1>
         </div>
 
-        <div class="logout-btn">
-            <a href="../Auth/logout.php">Cerrar sesión</a>
+        <!-- Usuario -->
+        <div class="px-6 py-4 border-b border-white/10 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                <i class="fa fa-user-circle-o text-lg"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium"><?= htmlspecialchars($nombre_usuario) ?> 👑</p>
+                <p class="text-xs text-gray-400"><?= ucfirst($rol_usuario) ?></p>
+            </div>
         </div>
 
+        <!-- MENÚ DE NAVEGACIÓN -->
+        <nav class="flex-1 overflow-y-auto scrollbar-hide py-4 px-3">
+            <p class="text-[10px] uppercase text-gray-500 font-semibold px-3 py-2 tracking-wider">Gestiona tu negocio</p>
+            
+            <ul class="space-y-1">
+                <!-- Facturas -->
+                <li>
+                    <a href="<?= $base_url ?>facturas/facturas.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'facturas.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-file-text-o w-5 text-center"></i>
+                        <span>Facturas</span>
+                    </a>
+                </li>
+                <!-- Inventario / Productos -->
+                <li>
+                    <a href="<?= $base_url ?>productos/inventario.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'inventario.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-cube w-5 text-center"></i>
+                        <span>Inventario</span>
+                    </a>
+                </li>
+                <!-- Garantías -->
+                <li>
+                    <a href="<?= $base_url ?>garantias/ver_garantia.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'ver_garantia.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-wrench w-5 text-center"></i>
+                        <span>Garantías</span>
+                    </a>
+                </li>
+                <!-- Clientes -->
+                <li>
+                    <a href="<?= $base_url ?>clientes/clientes.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg <?= basename($_SERVER['PHP_SELF']) == 'clientes.php' ? 'menu-activo' : 'text-gray-300 hover:bg-activo hover:text-white' ?> transition-all">
+                        <i class="fa fa-users w-5 text-center"></i>
+                        <span>Clientes</span>
+                    </a>
+                </li>
+                <!-- Compras -->
+                <li>
+                    <a href="<?= $base_url ?>compra/compras.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'compras.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-shopping-cart w-5 text-center"></i>
+                        <span>Compras</span>
+                    </a>
+                </li>
+                <!-- Proveedores -->
+                <li>
+                    <a href="<?= $base_url ?>proveedores/proveedores.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'proveedores.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-truck w-5 text-center"></i>
+                        <span>Proveedores</span>
+                    </a>
+                </li>
+                <!-- Ingresos -->
+                <li>
+                    <a href="<?= $base_url ?>ingresos/ingresos.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'ingresos.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-line-chart w-5 text-center"></i>
+                        <span>Ingresos</span>
+                    </a>
+                </li>
+                <!-- Usuarios -->
+                <li>
+                    <a href="<?= $base_url ?>usuario/usuarios.php" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-activo hover:text-white transition-all <?= basename($_SERVER['PHP_SELF']) == 'usuarios.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-user-secret w-5 text-center"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Cerrar Sesión -->
+        <div class="p-3 border-t border-white/10">
+            <a href="/MVC-PRU/views/Auth/logout.php" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-300 hover:bg-red-900/30 hover:text-red-200 transition-all">
+                <i class="fa fa-sign-out w-5 text-center"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
     </aside>
 
-    <!-- MAIN -->
-    <main class="main">
+    <!-- 🟩 CONTENIDO PRINCIPAL -->
+    <main class="flex-1 h-screen overflow-y-auto">
 
-        <div class="topbar">
-            <h1>Dashboard</h1>
-
-            <div class="search-box">
-                <input type="text" id="buscar" placeholder="Buscar...">
+        <!-- Encabezado superior -->
+        <header class="bg-white px-8 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div>
+                <h2 class="text-[26px] font-bold text-secondary">Dashboard</h2>
+                <p class="text-gray-500 text-sm">Panel de Administrador • Bienvenido, <span class="font-medium text-azul"><?= htmlspecialchars($nombre_usuario) ?></span> 👑</p>
             </div>
+            <!-- 🔍 BARRA DE BÚSQUEDA PARA FILTRAR MÓDULOS -->
+            <div class="relative">
+                <input type="text" id="buscarModulos" placeholder="Buscar módulo..." 
+                       class="pl-10 pr-4 py-2 w-[260px] bg-gris rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-azul/20 focus:border-azul transition-all">
+                <i class="fa fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </header>
+
+        <!-- 📊 CONTENIDO Y TARJETAS -->
+        <div class="px-8 py-6">
+            
+            <!-- Filtros y herramientas -->
+    
+                <button class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gris transition-all">
+                    <i class="fa fa-calendar"></i> <?= date('F Y') ?>
+                </button><br><br>
+           
+
+            <!-- Tarjetas de Resumen CON DATOS REALES -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+                <!-- BALANCE -->
+                <div class="bg-white p-5 rounded-xl sombra-suave border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl">
+                        <i class="fa fa-line-chart"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Balance</p>
+                        <p class="text-2xl font-bold text-secondary">$ <?= number_format($balance, 0, ',', '.') ?></p>
+                    </div>
+                </div>
+                <!-- VENTAS TOTALES -->
+                <div class="bg-white p-5 rounded-xl sombra-suave border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Ventas totales</p>
+                        <p class="text-2xl font-bold text-secondary">$ <?= number_format($ventas_totales, 0, ',', '.') ?></p>
+                    </div>
+                </div>
+                <!-- GASTOS TOTALES -->
+                <div class="bg-white p-5 rounded-xl sombra-suave border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl">
+                        <i class="fa fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Gastos totales</p>
+                        <p class="text-2xl font-bold text-secondary">$ <?= number_format($gastos_totales, 0, ',', '.') ?></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🟦 ACCESOS RÁPIDOS A TUS MÓDULOS - AQUÍ SE FILTRA -->
+            <h3 class="text-lg font-semibold text-secondary mb-4">Accesos rápidos</h3>
+            <div id="contenedorModulos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Inventario -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="inventario productos stock">
+                    <div class="w-12 h-12 bg-blue-50 text-azul rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-cube"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Inventario</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Gestiona productos y controla el stock fácilmente.</p>
+                    <a href="<?= $base_url ?>productos/inventario.php" class="inline-block w-full text-center bg-azul/10 text-azul font-medium py-2.5 rounded-lg hover:bg-azul/20 transition-all">Administrar</a>
+                </div>
+
+                <!-- Facturación -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="facturación facturas venta cobro">
+                    <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Facturación</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Crea facturas y administra ventas del sistema.</p>
+                    <a href="<?= $base_url ?>facturas/facturas.php" class="inline-block w-full text-center bg-green-50 text-green-700 font-medium py-2.5 rounded-lg hover:bg-green-100 transition-all">Ir a facturación</a>
+                </div>
+
+                <!-- Ingresos -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="ingresos ganancias reportes estadisticas">
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-bar-chart"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Ingresos</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Visualiza estadísticas y ganancias de tu negocio.</p>
+                    <a href="<?= $base_url ?>ingresos/ingresos.php" class="inline-block w-full text-center bg-amber-50 text-amber-700 font-medium py-2.5 rounded-lg hover:bg-amber-100 transition-all">Ver reportes</a>
+                </div>
+
+                <!-- Usuarios -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="usuarios cuentas roles permisos">
+                    <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Usuarios</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Administra cuentas, permisos y roles.</p>
+                    <a href="<?= $base_url ?>usuario/usuarios.php" class="inline-block w-full text-center bg-purple-50 text-purple-700 font-medium py-2.5 rounded-lg hover:bg-purple-100 transition-all">Administrar</a>
+                </div>
+
+                <!-- Garantías -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="garantías servicio reclamos">
+                    <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-wrench"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Garantías</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Gestiona solicitudes y procesos de garantías.</p>
+                    <a href="<?= $base_url ?>garantias/ver_garantia.php" class="inline-block w-full text-center bg-teal-50 text-teal-700 font-medium py-2.5 rounded-lg hover:bg-teal-100 transition-all">Administrar</a>
+                </div>
+
+                <!-- Clientes -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="clientes clientes">
+                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-user-circle"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Clientes</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Consulta y administra información de clientes.</p>
+                    <a href="<?= $base_url ?>clientes/clientes.php" class="inline-block w-full text-center bg-indigo-50 text-indigo-700 font-medium py-2.5 rounded-lg hover:bg-indigo-100 transition-all">Administrar</a>
+                </div>
+
+                <!-- Proveedores -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="proveedores proveedores comercio">
+                    <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-truck"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Proveedores</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Controla tus proveedores y relaciones comerciales.</p>
+                    <a href="<?= $base_url ?>proveedores/proveedores.php" class="inline-block w-full text-center bg-orange-50 text-orange-700 font-medium py-2.5 rounded-lg hover:bg-orange-100 transition-all">Administrar</a>
+                </div>
+
+                <!-- Compras -->
+                <div class="modulo bg-white rounded-2xl p-6 border border-gray-100 sombra-suave hover:shadow-md transition-all" data-nombre="compras compras gastos">
+                    <div class="w-12 h-12 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-secondary mb-1">Compras</h4>
+                    <p class="text-gray-500 text-sm mb-5 leading-relaxed">Gestiona compras y movimientos del sistema.</p>
+                    <a href="<?= $base_url ?>compra/compras.php" class="inline-block w-full text-center bg-pink-50 text-pink-700 font-medium py-2.5 rounded-lg hover:bg-pink-100 transition-all">Administrar</a>
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="welcome">
-            <h2>Panel de Administrador</h2>
-            <p>Bienvenido, <?php echo $_SESSION["usuario"]; ?> 👑</p>
-        </div>
-
-        <div class="cards">
-
-            <div class="card">
-                <div class="card-icon blue">📦</div>
-                <h3>Inventario</h3>
-                <p>Gestiona productos y controla el stock fácilmente.</p>
-                <button onclick="location.href='productos/inventario.php'">
-                    Administrar
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon green">📄</div>
-                <h3>Facturación</h3>
-                <p>Crea facturas y administra ventas del sistema.</p>
-                <button onclick="location.href='facturas/facturas.php'">
-                    Ir a facturación
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon orange">📊</div>
-                <h3>Ingresos</h3>
-                <p>Visualiza estadísticas y ganancias de tu negocio.</p>
-                <button onclick="location.href='ingresos/ingresos.php'">
-                    Ver reportes
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon purple">👥</div>
-                <h3>Usuarios</h3>
-                <p>Administra cuentas, permisos y roles.</p>
-                <button onclick="location.href='usuario/usuarios.php'">
-                    Administrar
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon green">🛠️</div>
-                <h3>Garantías</h3>
-                <p>Gestiona solicitudes y procesos de garantías.</p>
-                <button onclick="location.href='garantias/iniciogarantias.php'">
-                    Administrar
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon blue">👤</div>
-                <h3>Clientes</h3>
-                <p>Consulta y administra información de clientes.</p>
-                <button onclick="location.href='clientes/clientes.php'">
-                    Administrar
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon orange">🏭</div>
-                <h3>Proveedores</h3>
-                <p>Controla tus proveedores y relaciones comerciales.</p>
-                <button onclick="location.href='proveedores/proveedores.php'">
-                    Administrar
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-icon purple">🛒</div>
-                <h3>Compras</h3>
-                <p>Gestiona compras y movimientos del sistema.</p>
-                <button onclick="location.href='compra/compras.php'">
-                    Administrar
-                </button>
-            </div>
-
-        </div>
-
     </main>
 
-</div>
-<script>
+    <!-- ✅ SCRIPT PARA FILTRAR LOS MÓDULOS -->
+    <script>
+        const inputBusqueda = document.getElementById('buscarModulos');
+        const modulos = document.querySelectorAll('.modulo');
 
-// 🔎 BUSCADOR EN TIEMPO REAL
-document.getElementById("buscar").addEventListener("keyup", function() {
-
-    let filtro = this.value.toLowerCase();
-    let filas = document.querySelectorAll(".cards .card");
-
-    filas.forEach(fila => {
-
-        let texto = fila.textContent.toLowerCase();
-
-        fila.style.display = texto.includes(filtro)
-        ? ""
-        : "none";
-
-    });
-
-});
-
-</script>
+        inputBusqueda.addEventListener('input', function() {
+            const texto = this.value.toLowerCase().trim();
+            
+            modulos.forEach(modulo => {
+                const nombre = modulo.getAttribute('data-nombre').toLowerCase();
+                
+                // Si coincide o está vacío, mostrar; si no, ocultar
+                if (texto === '' || nombre.includes(texto)) {
+                    modulo.style.display = 'block';
+                } else {
+                    modulo.style.display = 'none';
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

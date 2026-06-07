@@ -3,6 +3,7 @@ require_once "../../../config/db.php";
 $conn = Database::Conectar();
 
 $mensaje = "";
+$errores = [];
 
 // 1️⃣ Obtener el ID desde la URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -16,7 +17,7 @@ $stmt = $conn->prepare("SELECT * FROM clientes WHERE id_clientes = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $cliente = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$stmt->close(); // ✅ Aquí se cierra solo la consulta de LECTURA
 
 if (!$cliente) {
     header("Location: clientes.php");
@@ -29,22 +30,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $cedula   = trim($_POST['cedula']);
     $telefono = trim($_POST['telefono']);
 
-    if (empty($nombre) || empty($cedula)) {
-        $mensaje = "Nombre y cédula son obligatorios";
-    } else {
-        $stmt = $conn->prepare("UPDATE clientes SET nombre=?, cedula=?, telefono=? WHERE id_clientes=?");
-        $stmt->bind_param("sssi", $nombre, $cedula, $telefono, $id);
+    // VALIDACIONES
+    if (empty($nombre)) {
+        $errores[] = "El nombre es obligatorio";
+    } elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $nombre)) {
+        $errores[] = "El nombre solo puede contener letras y espacios";
+    }
 
+    if (empty($cedula)) {
+        $errores[] = "La cédula es obligatoria";
+    } elseif (!ctype_digit($cedula)) {
+        $errores[] = "La cédula solo debe contener números";
+    } elseif (strlen($cedula) < 6 || strlen($cedula) > 15) {
+        $errores[] = "La cédula no tiene un formato válido";
+    }
+
+    if (!empty($telefono)) {
+        if (!ctype_digit($telefono)) {
+            $errores[] = "El teléfono solo debe contener números";
+        } elseif (strlen($telefono) < 7 || strlen($telefono) > 15) {
+            $errores[] = "El teléfono no es válido";
+        }
+    }
+
+    // SI NO HAY ERRORES, ACTUALIZAR
+    if (empty($errores)) {}
+       // ✅ Agregamos 'motivo'
+$stmt = $conn->prepare("UPDATE clientes SET nombre = ?, cedula = ?, telefono = ?, correo = ?, motivo = ? WHERE id_clientes = ?");
+$stmt->bind_param("sssssi", $nombre, $cedula, $telefono, $correo, $motivo, $id);
         if ($stmt->execute()) {
             $stmt->close();
-            echo "<script>alert('Cliente actualizado'); window.location='clientes.php';</script>";
+            echo "<script>alert('Cliente actualizado correctamente ✅'); window.location='clientes.php';</script>";
             exit;
         } else {
             $mensaje = "Error al actualizar: " . $conn->error;
-            $stmt->close();
         }
+    } else {
+        // Mostrar errores de validación
+        $mensaje = implode("<br>", $errores);
     }
-}
+
 ?>
 
 <!DOCTYPE html>
@@ -164,28 +189,33 @@ button:hover{
     <h1>Editar Cliente</h1>
 
     <?php if ($mensaje != ""): ?>
-        <div class="mensaje"><?= htmlspecialchars($mensaje) ?></div>
+        <div class="mensaje"><?= htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8') ?></div>
     <?php endif; ?>
 
     <form method="POST" action="editar_cliente.php?id=<?= $id ?>">
 
         <label>Nombre completo</label>
         <input type="text" name="nombre"
-               value="<?= htmlspecialchars($cliente['nombre']) ?>"
+               value="<?= htmlspecialchars($cliente['nombre'], ENT_QUOTES, 'UTF-8') ?>"
                placeholder="Nombre completo" required>
 
         <label>Cédula</label>
         <input type="text" name="cedula"
-               value="<?= htmlspecialchars($cliente['cedula']) ?>"
+               value="<?= htmlspecialchars($cliente['cedula'], ENT_QUOTES, 'UTF-8') ?>"
                placeholder="Cédula" required>
 
         <label>Teléfono</label>
         <input type="text" name="telefono"
-               value="<?= htmlspecialchars($cliente['telefono']) ?>"
+               value="<?= htmlspecialchars($cliente['telefono'], ENT_QUOTES, 'UTF-8') ?>"
                placeholder="Teléfono">
 
-        <button type="submit">Actualizar Cliente</button>
+   <label>Estado del cliente</label>
+<select name="motivo" required>
+    <option value="activo" <?= ($cliente['motivo'] == 'activo') ? 'selected' : '' ?>>✅ Activo</option>
+    <option value="inactivo" <?= ($cliente['motivo'] == 'inactivo') ? 'selected' : '' ?>>❌ Inactivo</option>
+</select>
 
+<button type="submit">Actualizar Cliente</button>
     </form>
 
     <a class="volver" href="clientes.php">⬅ Volver</a>

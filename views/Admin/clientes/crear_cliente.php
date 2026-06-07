@@ -13,12 +13,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $telefono = $_POST['telefono'];
  // VALIDACIONES
 
-    // Nombre
-    if (empty($nombre)) {
-        $errores[] = "El nombre es obligatorio";
-    } elseif (strlen($nombre) < 3) {
-        $errores[] = "El nombre es muy corto";
-    }
+      if (empty($nombre)) {
+    $errores[] = "El nombre es obligatorio";
+} elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $nombre)) {
+    $errores[] = "El nombre solo puede contener letras y espacios";
+}
 
     // Cédula
     if (empty($cedula)) {
