@@ -67,9 +67,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $telefono_int  = intval($telefono);
 
             $stmt = $conn->prepare("INSERT INTO usuario
-                (nombre_negocio, nombre_usuario, apellido_usuario, telefono, correo, contrasena)
-                VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssiss", $nombre_negocio, $nombre_usuario, $apellido_usuario, $telefono_int, $correo, $password_hash);
+                (nombre_usuario, apellido_usuario, telefono, correo, contrasena)
+                VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssiss", $nombre_usuario, $apellido_usuario, $telefono_int, $correo, $password_hash);
 
             if ($stmt->execute()) {
                 $id_usuario = $conn->insert_id;
@@ -132,11 +132,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php endif; ?>
 
     <form method="POST">
-
-        <input class="input" type="text" name="nombre_negocio"
-               placeholder="Negocio *"
-               value="<?= htmlspecialchars($_POST['nombre_negocio'] ?? '') ?>"
-               maxlength="100" required>
 
         <input class="input" type="text" name="nombre_usuario"
                placeholder="Nombre de usuario *"

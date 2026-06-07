@@ -487,34 +487,6 @@ tr:hover{
             <?php endif; ?>
 
 
-            <!-- FORMULARIO DE REGISTRO -->
-            <div class="card">
-
-                <form method="POST" action="">
-
-                    <div>
-                        <label style="display:block; margin-bottom:8px; font-weight:600;">Nombre completo</label>
-                        <input type="text" name="nombre" value="<?= isset($_POST['nombre']) ? htmlspecialchars($_POST['nombre']) : '' ?>" required>
-                    </div>
-
-                    <div>
-                        <label style="display:block; margin-bottom:8px; font-weight:600;">Cédula / Identificación</label>
-                        <input type="text" name="cedula" value="<?= isset($_POST['cedula']) ? htmlspecialchars($_POST['cedula']) : '' ?>" required>
-                    </div>
-
-                    <div class="full">
-                        <label style="display:block; margin-bottom:8px; font-weight:600;">Teléfono (opcional)</label>
-                        <input type="text" name="telefono" value="<?= isset($_POST['telefono']) ? htmlspecialchars($_POST['telefono']) : '' ?>">
-                    </div>
-
-                    <div class="full" style="text-align:right;">
-                        <button type="submit" class="btn">Guardar cliente</button>
-                    </div>
-
-                </form>
-
-            </div>
-
 
             <!-- TABLA -->
             <?php

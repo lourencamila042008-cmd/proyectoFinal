@@ -1,18 +1,25 @@
 <?php
 
+// Cargo la conexión a la base de datos
 require_once __DIR__."/../config/db.php";
 
+// Clase para manejar el inicio de sesión y registro
 class Auth {
 
+    // Variable para guardar la conexión
     private $conexion;
 
+    // Al iniciar la clase, conecta a la base de datos
     public function __construct(){
         $this->conexion = Database::Conectar();
     }
 
-    // 🔐 LOGIN
+    // ➡️ FUNCIÓN PARA INICIAR SESIÓN
     public function login($usuario,$password){
 
+        // Busco el usuario en la base:
+        // Traigo sus datos y su rol (junto las tablas usuario, rol_user y rol)
+        // Puede entrar con correo o con nombre de usuario
         $sql = $this->conexion->prepare("
             SELECT u.*, r.tipo, r.id_rol
             FROM usuario u
@@ -27,25 +34,28 @@ class Auth {
 
         $resultado = $sql->get_result();
 
+        // Si encontró el usuario...
         if($resultado->num_rows > 0){
 
             $user = $resultado->fetch_assoc();
 
-            // 🔥 VERIFICAR CONTRASEÑA SEGURA
+            // Verifico si la contraseña es correcta (está encriptada)
             if(password_verify($password,$user['contraseña'])){
-                return $user;
+                return $user; // Devuelvo todos los datos del usuario
             }
         }
 
-        return false;
+        return false; // Si falla algo, devuelvo falso
     }
 
 
-    // 📝 REGISTER → EMPLEADO POR DEFECTO
+    // ➡️ FUNCIÓN PARA REGISTRAR NUEVO USUARIO
     public function register($datos){
 
+        // Encripto la contraseña antes de guardarla
         $password_hash = password_hash($datos['password'], PASSWORD_DEFAULT);
 
+        // Guardo los datos del usuario en la tabla usuario
         $sql = $this->conexion->prepare("
             INSERT INTO usuario
             (nombre_negocio,nombre_usuario,apellido_usuario,telefono,correo,contraseña)
@@ -61,13 +71,16 @@ class Auth {
             $password_hash
         );
 
+        // Si se guardó bien...
         if($sql->execute()){
 
+            // Obtengo el ID del usuario que acabo de crear
             $id_usuario = $this->conexion->insert_id;
 
-            // 🔥 BUSCAR ROL EMPLEADO
+            // Por defecto, todos los nuevos son ROL EMPLEADO
             $rolEmpleado = "empleado";
 
+            // Busco qué número de ID tiene el rol "empleado"
             $sqlRol = $this->conexion->prepare("
                 SELECT id_rol FROM rol WHERE tipo = ?
             ");
@@ -81,13 +94,12 @@ class Auth {
 
                 $id_rol = $fila['id_rol'];
 
-                // 🔥 INSERTAR EN rol_user
+                // Relaciono al usuario con su rol en la tabla rol_user
                 $sqlUserRol = $this->conexion->prepare("
                     INSERT INTO rol_user (id_rol,id_usuario)
                     VALUES (?,?)
                 ");
                 
-
                 $sqlUserRol->bind_param("ii",$id_rol,$id_usuario);
 
                 return $sqlUserRol->execute();

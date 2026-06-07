@@ -131,9 +131,17 @@ $base_url = "/MVC-PRU/views/Empleado/";
             </ul>
         </nav>
 
-        <!-- Cerrar Sesión -->
+                    <!-- 👤 MI PERFIL -->
+                <li>
+                    <a href="<?= $base_url ?>perfil/perfil.php" class="menu-item <?= basename($_SERVER['PHP_SELF']) == 'perfil.php' ? 'menu-activo' : '' ?>">
+                        <i class="fa fa-id-card w-5 text-center"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+
+       <!-- Cerrar Sesión -->
         <div class="p-3 border-t border-white/10">
-            <a href="../Auth/logout.php" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-300 hover:bg-red-900/30 hover:text-red-200 transition-all">
+            <a href="/MVC-PRU/views/Auth/logout.php" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-300 hover:bg-red-900/30 hover:text-red-200 transition-all">
                 <i class="fa fa-sign-out w-5 text-center"></i>
                 <span>Cerrar sesión</span>
             </a>
