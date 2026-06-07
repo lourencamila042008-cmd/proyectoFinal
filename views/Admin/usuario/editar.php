@@ -32,14 +32,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($nombre_usuario) || empty($apellido_usuario)) {
         $mensaje = "Nombre y apellido son obligatorios.";
     } else {
+        if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $nombre_usuario)) {
+    die("<script>alert('El nombre no puede contener números ni caracteres especiales');history.back();</script>");
+}
+
+if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $apellido_usuario)) {
+    die("<script>alert('El apellido no puede contener números ni caracteres especiales');history.back();</script>");
+}
         // Si ingresó nueva contraseña la actualizamos, si no la dejamos igual
         if (!empty($_POST['contrasena'])) {
             $contrasena = password_hash($_POST['contrasena'], PASSWORD_DEFAULT);
             $stmt = $conn->prepare("UPDATE usuario SET nombre_usuario=?, apellido_usuario=?, telefono=?, correo=?, contrasena=? WHERE id_usuario=?");
-            $stmt->bind_param("sssissi", $nombre_usuario, $apellido_usuario, $telefono, $correo, $contrasena, $id);
+            $stmt->bind_param("ssissi", $nombre_usuario, $apellido_usuario, $telefono, $correo, $contrasena, $id);
         } else {
             $stmt = $conn->prepare("UPDATE usuario SET nombre_usuario=?, apellido_usuario=?, telefono=?, correo=? WHERE id_usuario=?");
-            $stmt->bind_param("sssisi", $nombre_usuario, $apellido_usuario, $telefono, $correo, $id);
+$stmt->bind_param("ssisi", $nombre_usuario, $apellido_usuario, $telefono, $correo, $id);
         }
 
         if ($stmt->execute()) {

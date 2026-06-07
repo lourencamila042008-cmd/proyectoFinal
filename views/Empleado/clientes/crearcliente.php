@@ -81,7 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
         if($guardar){
 
-            header("Location: clientes_empleado.php");
+            header("Location: clientesinicio.php");
             exit();
         }
     }

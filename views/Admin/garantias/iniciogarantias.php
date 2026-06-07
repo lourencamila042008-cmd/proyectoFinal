@@ -204,6 +204,13 @@ tr:hover{
                 <td><?= $g['fecha_fin'] ?></td>
                 <td>
                     <a class="btn-ver" href="ver_garantia.php?id=<?= $g['id_garantia'] ?>">Ver</a>
+
+                    <a href="editar_garantia.php?id=<?= $g['id_garantia'] ?>"
+           style="color:#b45309;">Editar</a>
+
+           <a href="eliminar_garantia.php?id=<?= $g['id_garantia'] ?>"
+           onclick="return confirm('¿Eliminar garantía?');"
+           style="color:#dc2626;">Eliminar</a>
                     
                 </td>
             </tr>

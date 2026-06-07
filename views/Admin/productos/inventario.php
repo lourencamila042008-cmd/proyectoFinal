@@ -182,6 +182,42 @@ tbody tr:hover{
         overflow-x:auto;
     }
 }
+.action-buttons{
+    display:flex;
+    gap:8px;
+}
+
+.btn-edit{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn-edit:hover{
+    background:#1d4ed8;
+}
+
+.btn-delete{
+    background:#dc2626;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn-delete:hover{
+    background:#b91c1c;
+}
 
 </style>
 </head>
@@ -222,6 +258,7 @@ tbody tr:hover{
 <th>Precio Venta</th>
 <th>Precio Compra</th>
 <th>Mínimo Stock</th>
+<th>Acciones</th>
 </tr>
 </thead>
 
@@ -244,6 +281,24 @@ tbody tr:hover{
 <td>$<?= number_format($p["precio_compra"], 0, ',', '.') ?></td>
 
 <td><?= $p["min_stock"] ?></td>
+
+<td>
+    <div class="action-buttons">
+
+        <button
+            class="btn-edit"
+            onclick="location.href='editar_producto.php?id=<?= $p['id_productos'] ?>'">
+            ✏ Editar
+        </button>
+
+        <button
+            class="btn-delete"
+            onclick="eliminarProducto(<?= $p['id_productos'] ?>)">
+            🗑 Eliminar
+        </button>
+
+    </div>
+</td>
 
 </tr>
 
@@ -274,6 +329,20 @@ document.getElementById("buscar").addEventListener("keyup", function() {
     });
 
 });
+
+
+function eliminarProducto(id){
+
+    if(confirm("¿Está seguro de eliminar este producto?")){
+
+        window.location.href =
+        "eliminar_producto.php?id=" + id;
+
+    }
+
+}
+
+
 
 </script>
 

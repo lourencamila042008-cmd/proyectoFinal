@@ -21,9 +21,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     // VALIDACIONES
 
-    if (empty($nombre)) {
-        $errores[] = "El nombre es obligatorio";
-    }
+   if (empty($nombre)) {
+    $errores[] = "El nombre es obligatorio";
+} elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $nombre)) {
+    $errores[] = "El nombre solo puede contener letras y espacios";
+}
 
     if (!is_numeric($stock) || $stock < 0) {
         $errores[] = "El stock debe ser numérico y positivo";

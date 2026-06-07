@@ -12,9 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $correo           = trim($_POST['correo']);
     $contrasena       = password_hash($_POST['contrasena'], PASSWORD_DEFAULT);
 
-    if (empty($nombre_usuario) || empty($apellido_usuario)) {
-        $mensaje = "Nombre y apellido son obligatorios.";
-    } else {
+   if (empty($nombre_usuario) || empty($apellido_usuario)) {
+    $mensaje = "Nombre y apellido son obligatorios.";
+} elseif (!preg_match("/^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$/", $nombre_usuario)) {
+    $mensaje = "El nombre solo puede contener letras.";
+} elseif (!preg_match("/^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$/", $apellido_usuario)) {
+    $mensaje = "El apellido solo puede contener letras.";
+} elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+    $mensaje = "El correo no es válido.";
+} elseif (!preg_match('/^[0-9]+$/', $telefono)) {
+    $mensaje = "El teléfono solo puede contener números.";
+} else {
         $telefono = intval($_POST['telefono']);
 
 $stmt = $conn->prepare("INSERT INTO usuario 
@@ -155,22 +163,37 @@ button:hover{
 
         <div class="campo">
             <label>Nombre</label>
-            <input type="text" name="nombre_usuario" placeholder="Nombre" required>
+            <input type="text"
+       name="nombre_usuario"
+       placeholder="Nombre"
+       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+       title="Solo se permiten letras"
+       required>
         </div>
 
         <div class="campo">
             <label>Apellido</label>
-            <input type="text" name="apellido_usuario" placeholder="Apellido" required>
+            <input type="text"
+       name="apellido_usuario"
+       placeholder="Apellido"
+       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+       title="Solo se permiten letras"
+       required>
         </div>
 
         <div class="campo">
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="Teléfono">
+            <input type="text"
+       name="telefono"
+       placeholder="Teléfono"
+       pattern="[0-9]+"
+       title="Solo números"
+       required>
         </div>
 
         <div class="campo">
             <label>Correo</label>
-            <input type="email" name="correo" placeholder="correo@ejemplo.com">
+            <input type="email" name="correo" placeholder="correo@ejemplo.com" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" title="Ingrese un correo válido" required>
         </div>
 
         <div class="campo">

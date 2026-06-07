@@ -263,7 +263,9 @@ tbody tr:hover{
     <a href="pdf_factura.php?id=<?= $f['id_facturas'] ?>">
         📄
     </a>
-
+      <a href="enviar_correo.php?id=<?= $f['id_facturas'] ?>">
+        📄
+    </a>
 </td>
 
 </tr>

@@ -7,6 +7,14 @@ $errores = [];
 // PROCESAR FORMULARIO
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+
+if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $nombre_usuario)) {
+    die("<script>alert('El nombre no puede contener números ni caracteres especiales');history.back();</script>");
+}
+
+if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $apellido_usuario)) {
+    die("<script>alert('El apellido no puede contener números ni caracteres especiales');history.back();</script>");
+}
     // 🔥 RECIBIR DATOS
     $id_cliente  = intval($_POST['id_clientes']);
     $id_producto = intval($_POST['id_productos']);

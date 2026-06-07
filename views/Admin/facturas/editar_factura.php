@@ -2,19 +2,20 @@
 require_once "../../../config/db.php";
 $conn = Database::Conectar();
 
-$mensaje = "";
-
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: facturas.php");
     exit;
 }
+
 $id = intval($_GET['id']);
 
-// Cargar datos actuales de la factura y su detalle
-$stmt = $conn->prepare("SELECT f.*, d.id_detallefactura, d.id_productos, d.cantidad, d.precio
-                        FROM facturas f
-                        JOIN detallefactura d ON f.id_detallefactura = d.id_detallefactura
-                        WHERE f.id_facturas = ?");
+$stmt = $conn->prepare("
+    SELECT f.*, d.id_detallefactura, d.id_productos, d.cantidad, d.precio
+    FROM facturas f
+    JOIN detallefactura d ON f.id_detallefactura = d.id_detallefactura
+    WHERE f.id_facturas = ?
+");
+
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $factura = $stmt->get_result()->fetch_assoc();
@@ -25,32 +26,89 @@ if (!$factura) {
     exit;
 }
 
-// Procesar formulario
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $estado   = $_POST['estado'];
-    $fecha    = $_POST['fecha'];
-    $cantidad = intval($_POST['cantidad']);
-    $precio   = floatval($_POST['precio']);
-    $subtotal = $cantidad * $precio;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $estado       = trim($_POST['estado']);
+    $fecha        = trim($_POST['fecha']);
+    $cantidad     = intval($_POST['cantidad']);
+    $precio       = floatval($_POST['precio']);
     $id_productos = intval($_POST['id_productos']);
 
-    // Actualizar factura
-    $stmt = $conn->prepare("UPDATE facturas SET estado=?, fecha=? WHERE id_facturas=?");
-    $stmt->bind_param("ssi", $estado, $fecha, $id);
-    $stmt->execute();
-    $stmt->close();
+    $estadosPermitidos = ['pagada', 'pendiente', 'anulada'];
+
+    if (!in_array($estado, $estadosPermitidos)) {
+        die("<script>alert('Estado no válido');history.back();</script>");
+    }
+
+    if (empty($fecha)) {
+        die("<script>alert('La fecha es obligatoria');history.back();</script>");
+    }
+
+    if ($cantidad <= 0) {
+        die("<script>alert('La cantidad debe ser mayor que 0');history.back();</script>");
+    }
+
+    if ($precio < 0) {
+        die("<script>alert('El precio no puede ser negativo');history.back();</script>");
+    }
+
+    if ($id_productos <= 0) {
+        die("<script>alert('Debe seleccionar un producto válido');history.back();</script>");
+    }
+
+    // Verificar que el producto exista
+    $verificar = $conn->prepare("
+        SELECT id_productos
+        FROM productos
+        WHERE id_productos = ?
+    ");
+
+    $verificar->bind_param("i", $id_productos);
+    $verificar->execute();
+    $resultado = $verificar->get_result();
+
+    if ($resultado->num_rows == 0) {
+        die("<script>alert('El producto seleccionado no existe');history.back();</script>");
+    }
 
     // Actualizar detalle
-    $stmt = $conn->prepare("UPDATE detallefactura SET id_productos=?, cantidad=?, precio=?, subtotal=? WHERE id_detallefactura=?");
-    $stmt->bind_param("iiddi", $id_productos, $cantidad, $precio, $subtotal, $factura['id_detallefactura']);
-    $stmt->execute();
-    $stmt->close();
+    $stmt = $conn->prepare("
+        UPDATE detallefactura
+        SET id_productos = ?, cantidad = ?, precio = ?
+        WHERE id_detallefactura = ?
+    ");
 
-    echo "<script>alert('Factura actualizada'); window.location='facturas.php';</script>";
+    $stmt->bind_param(
+        "iidi",
+        $id_productos,
+        $cantidad,
+        $precio,
+        $factura['id_detallefactura']
+    );
+
+    $stmt->execute();
+
+    // Actualizar factura
+    $stmt = $conn->prepare("
+        UPDATE facturas
+        SET estado = ?, fecha = ?
+        WHERE id_facturas = ?
+    ");
+
+    $stmt->bind_param(
+        "ssi",
+        $estado,
+        $fecha,
+        $id
+    );
+
+    $stmt->execute();
+
+    header("Location: facturas.php");
     exit;
 }
 
-$clientes  = $conn->query("SELECT * FROM clientes");
+$clientes = $conn->query("SELECT * FROM clientes");
 $productos = $conn->query("SELECT * FROM productos");
 ?>
 
@@ -61,7 +119,26 @@ $productos = $conn->query("SELECT * FROM productos");
 <title>Editar Factura</title>
 <link rel="stylesheet" href="../../../public/css/facturas/editar_factura.css">
 </head>
+<script>
+document.querySelector("form").addEventListener("submit", function(e){
 
+    let cantidad = parseInt(document.querySelector("[name='cantidad']").value);
+    let precio = parseFloat(document.querySelector("[name='precio']").value);
+
+    if(cantidad <= 0){
+        alert("La cantidad debe ser mayor que 0");
+        e.preventDefault();
+        return;
+    }
+
+    if(precio < 0){
+        alert("El precio no puede ser negativo");
+        e.preventDefault();
+        return;
+    }
+
+});
+</script>
 <body>
 <div class="container">
 
@@ -195,4 +272,25 @@ h3{
 
 </div>
 </body>
+<script>
+const form = document.querySelector("form");
+
+form.addEventListener("submit", function(e){
+
+    let cantidad = parseInt(document.querySelector("[name='cantidad']").value);
+    let precio = parseFloat(document.querySelector("[name='precio']").value);
+
+    if(cantidad <= 0){
+        alert("La cantidad debe ser mayor que 0");
+        e.preventDefault();
+        return;
+    }
+
+    if(precio < 0){
+        alert("El precio no puede ser negativo");
+        e.preventDefault();
+    }
+
+});
+</script>
 </html>
