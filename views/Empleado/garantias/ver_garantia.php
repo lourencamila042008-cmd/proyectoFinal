@@ -273,7 +273,7 @@ body{
         <div class="actions-top">
 
             <a class="btn btn-volver"
-            href="iniciogarantias.php">
+            href="garantias.php">
 
                 ← Volver
 
